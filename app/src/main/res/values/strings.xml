@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MovieDB</string>
+
+    <string name="home_title">MovieDB</string>
+    <string name="home_welcome_title">Welcome to MovieDB</string>
+    <string name="home_welcome_subtitle">Browse popular movies, view details, and manage your favorites.</string>
+    <string name="home_section_popular">Popular Movies</string>
+    <string name="home_section_results">Search Results</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_about">About</string>
+
+    <string name="details_title">Movie Details</string>
+    <string name="details_overview">Overview</string>
+    <string name="details_release_date">Release Date</string>
+    <string name="details_runtime">Runtime</string>
+    <string name="details_runtime_minutes">%1$d min</string>
+    <string name="details_votes">(%1$s votes)</string>
+    <string name="details_add_favorite">Add to Favorites</string>
+    <string name="details_added_favorite">Added to Favorites</string>
+    <string name="details_no_overview">No overview available for this movie.</string>
+
+    <string name="favorites_title">Favorites</string>
+    <string name="favorites_empty_title">No favorites yet</string>
+    <string name="favorites_empty_subtitle">Tap the bookmark on any movie to keep it here. Favorites are stored encrypted on this device.</string>
+
+    <string name="profile_title">Profile</string>
+    <string name="profile_storage_title">Favorites storage</string>
+    <string name="profile_storage_body">Favorites are encrypted with AES-256/GCM. The key is generated in the Android Keystore and never leaves the device.</string>
+    <string name="profile_clear_favorites">Clear all favorites</string>
+    <string name="profile_about_title">About</string>
+    <string name="about_intro">Browse the most popular movies from TMDB, open any of them for details, and keep your own favorites on this device.</string>
+    <string name="profile_version">Version %1$s</string>
+    <string name="profile_attribution">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
+
+    <string name="action_menu">Open menu</string>
+    <string name="action_close_menu">Close menu</string>
+    <string name="action_search">Search</string>
+    <string name="action_close_search">Close search</string>
+    <string name="action_back">Back</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_open_favorites">Open favorites</string>
+    <string name="search_hint">Search movies</string>
+
+    <string name="cd_add_favorite">Add to favorites</string>
+    <string name="cd_remove_favorite">Remove from favorites</string>
+    <string name="cd_poster">Poster of %1$s</string>
+    <string name="cd_rating">Rating %1$s out of 10</string>
+
+    <string name="message_added_to_favorites">Added to favorites</string>
+    <string name="message_removed_from_favorites">Removed from favorites</string>
+    <string name="message_favorites_cleared">All favorites cleared</string>
+    <string name="profile_favorites_count">%1$d saved</string>
+
+    <string name="error_network">No internet connection. Check your network and try again.</string>
+    <string name="error_unauthorized">TMDB rejected the API token. Check TMDB_READ_ACCESS_TOKEN in local.properties.</string>
+    <string name="error_server">TMDB is not responding right now (error %1$d).</string>
+    <string name="error_unknown">Something went wrong.</string>
+    <string name="error_empty_results">No movies found.</string>
+</resources>

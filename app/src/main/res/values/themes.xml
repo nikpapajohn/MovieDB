@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colors and typography live in Compose (ui/theme). This XML theme only covers
+         the window before the first frame is composed. -->
+    <style name="Theme.MovieDB" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/surface</item>
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+    </style>
+</resources>
