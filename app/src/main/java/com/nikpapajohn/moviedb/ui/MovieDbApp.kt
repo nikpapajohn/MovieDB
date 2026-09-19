@@ -35,7 +35,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.ui.about.AboutRoute
 import com.nikpapajohn.moviedb.ui.details.DetailsRoute
@@ -109,7 +108,7 @@ fun MovieDbApp() {
                 composable<Destination.Home> {
                     PopularRoute(
                         onNavigateToDetails = { navController.navigate(Destination.Details(it)) },
-                        onNavigateToFavorites = { navController.navigate(Destination.Favorites) },
+                        onNavigateToFavorites = { navController.navigateToTab(BottomTab.FAVORITES) },
                         onMenuClick = openDrawer,
                     )
                 }
