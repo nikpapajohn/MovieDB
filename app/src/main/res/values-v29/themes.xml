@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      From API 29 the system paints its own scrim behind translucent system bars. The app
+      draws edge to edge and colours those areas itself, so both scrims are turned off here;
+      the attributes do not exist below 29, hence the separate qualifier.
+    -->
+    <style name="Theme.MovieDB" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/surface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+</resources>

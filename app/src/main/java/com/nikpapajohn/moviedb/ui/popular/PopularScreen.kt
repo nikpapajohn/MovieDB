@@ -1,5 +1,7 @@
 package com.nikpapajohn.moviedb.ui.popular
 
+import android.content.res.Configuration
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,6 +65,7 @@ import com.nikpapajohn.moviedb.ui.popular.PopularContract.State
 @Composable
 fun PopularRoute(
     onNavigateToDetails: (Int) -> Unit,
+    onNavigateToAbout: () -> Unit,
     onNavigateToFavorites: () -> Unit,
     onMenuClick: () -> Unit,
     viewModel: PopularViewModel = hiltViewModel(),
@@ -79,6 +86,7 @@ fun PopularRoute(
         message = message,
         onMessageShown = { message = null },
         onMenuClick = onMenuClick,
+        onAboutClick = onNavigateToAbout,
         onIntent = viewModel::onIntent,
     )
 }
@@ -90,9 +98,13 @@ fun PopularScreen(
     message: UiText?,
     onMessageShown: () -> Unit,
     onMenuClick: () -> Unit,
+    onAboutClick: () -> Unit,
     onIntent: (Intent) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var menuExpanded by remember { mutableStateOf(false) }
+    val isLandscape =
+        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     SnackbarMessage(message = message, hostState = snackbarHostState, onShown = onMessageShown)
 
     Scaffold(
@@ -126,6 +138,31 @@ fun PopularScreen(
                             ),
                         )
                     }
+                    IconButton(onClick = { menuExpanded = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = stringResource(R.string.action_more),
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.action_refresh)) },
+                            onClick = {
+                                menuExpanded = false
+                                onIntent(Intent.Retry)
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_about)) },
+                            onClick = {
+                                menuExpanded = false
+                                onAboutClick()
+                            },
+                        )
+                    }
                 },
             )
         },
@@ -137,6 +174,9 @@ fun PopularScreen(
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
+                // Landscape pushes it against the navigation bar on the right edge, so it is
+                // pulled back inwards; portrait keeps the standard 16dp margin.
+                modifier = Modifier.padding(end = if (isLandscape) 40.dp else 0.dp),
             ) {
                 Icon(
                     Icons.Filled.Favorite,
@@ -160,7 +200,8 @@ fun PopularScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
-            } else {
+            } else if (!isLandscape) {
+                // In landscape the welcome block would eat most of the visible list.
                 WelcomeHeader()
             }
 
@@ -223,7 +264,8 @@ private fun MovieList(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
+        // Bottom room for the FAB, so the last card is never trapped under it.
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 88.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         itemsIndexed(items = state.items, key = { _, item -> item.movie.id }) { index, item ->

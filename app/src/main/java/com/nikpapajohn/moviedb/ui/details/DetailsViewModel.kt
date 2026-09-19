@@ -54,6 +54,12 @@ class DetailsViewModel @Inject constructor(
 
             Intent.BackClicked -> emit(Effect.NavigateBack)
 
+            Intent.ShareClicked -> _state.value.details?.let { details ->
+                emit(Effect.ShareText("${details.title} - ${tmdbUrl(details.id)}"))
+            }
+
+            Intent.OpenInTmdbClicked -> emit(Effect.OpenUrl(tmdbUrl(movieId)))
+
             Intent.ToggleFavorite -> {
                 val movie = _state.value.details?.toMovie() ?: return
                 viewModelScope.launch {
@@ -87,6 +93,8 @@ class DetailsViewModel @Inject constructor(
     private fun emit(effect: Effect) {
         viewModelScope.launch { _effects.send(effect) }
     }
+
+    private fun tmdbUrl(id: Int) = "https://www.themoviedb.org/movie/$id"
 
     private companion object {
         /** Field name of Destination.Details: how type-safe routes store their arguments. */

@@ -3,6 +3,9 @@ package com.nikpapajohn.moviedb.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.nikpapajohn.moviedb.R
@@ -30,10 +33,29 @@ sealed interface Destination {
 enum class BottomTab(
     val destination: Destination,
     val route: KClass<out Destination>,
-    val icon: ImageVector,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
     val labelRes: Int,
 ) {
-    HOME(Destination.Home, Destination.Home::class, Icons.Filled.Home, R.string.nav_home),
-    FAVORITES(Destination.Favorites, Destination.Favorites::class, Icons.Filled.Bookmark, R.string.nav_favorites),
-    PROFILE(Destination.Profile, Destination.Profile::class, Icons.Outlined.Person, R.string.nav_profile),
+    HOME(
+        destination = Destination.Home,
+        route = Destination.Home::class,
+        selectedIcon = Icons.Filled.Home,
+        unselectedIcon = Icons.Outlined.Home,
+        labelRes = R.string.nav_home,
+    ),
+    FAVORITES(
+        destination = Destination.Favorites,
+        route = Destination.Favorites::class,
+        selectedIcon = Icons.Filled.Bookmark,
+        unselectedIcon = Icons.Outlined.BookmarkBorder,
+        labelRes = R.string.nav_favorites,
+    ),
+    PROFILE(
+        destination = Destination.Profile,
+        route = Destination.Profile::class,
+        selectedIcon = Icons.Filled.Person,
+        unselectedIcon = Icons.Outlined.Person,
+        labelRes = R.string.nav_profile,
+    ),
 }

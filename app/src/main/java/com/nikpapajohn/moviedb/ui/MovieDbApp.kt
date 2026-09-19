@@ -8,23 +8,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -45,6 +51,7 @@ import com.nikpapajohn.moviedb.ui.popular.PopularRoute
 import com.nikpapajohn.moviedb.ui.profile.ProfileRoute
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieDbApp() {
     val navController = rememberNavController()
@@ -83,16 +90,41 @@ fun MovieDbApp() {
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
                 if (selectedTab != null) {
-                    NavigationBar {
-                        BottomTab.entries.forEach { tab ->
-                            NavigationBarItem(
-                                selected = tab == selectedTab,
-                                onClick = {
-                                    if (tab != selectedTab) navController.navigateToTab(tab)
-                                },
-                                icon = { Icon(tab.icon, contentDescription = null) },
-                                label = { Text(stringResource(tab.labelRes)) },
-                            )
+                    CompositionLocalProvider(
+                        LocalRippleConfiguration provides RippleConfiguration(
+                            color = MaterialTheme.colorScheme.primary,
+                        ),
+                    ) {
+                        NavigationBar(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ) {
+                            BottomTab.entries.forEach { tab ->
+                                val selected = tab == selectedTab
+                                NavigationBarItem(
+                                    selected = selected,
+                                    onClick = {
+                                        if (!selected) navController.navigateToTab(tab)
+                                    },
+                                    icon = {
+                                        Icon(
+                                            imageVector = if (selected) {
+                                                tab.selectedIcon
+                                            } else {
+                                                tab.unselectedIcon
+                                            },
+                                            contentDescription = null,
+                                        )
+                                    },
+                                    label = { Text(stringResource(tab.labelRes)) },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        indicatorColor = Color.Transparent,
+                                    ),
+                                )
+                            }
                         }
                     }
                 }
@@ -108,6 +140,10 @@ fun MovieDbApp() {
                 composable<Destination.Home> {
                     PopularRoute(
                         onNavigateToDetails = { navController.navigate(Destination.Details(it)) },
+                        onNavigateToAbout = { navController.navigate(Destination.About) },
+                        // Favorites is a tab, so the FAB switches tabs instead of pushing a
+                        // second Favorites entry on top of Home. A pushed entry left the tab
+                        // bar unable to return to Home, which is the start destination.
                         onNavigateToFavorites = { navController.navigateToTab(BottomTab.FAVORITES) },
                         onMenuClick = openDrawer,
                     )
@@ -168,10 +204,16 @@ private fun AppDrawer(
         }
 
         BottomTab.entries.forEach { tab ->
+            val selected = tab == selectedTab
             NavigationDrawerItem(
                 label = { Text(stringResource(tab.labelRes)) },
-                icon = { Icon(tab.icon, contentDescription = null) },
-                selected = tab == selectedTab,
+                icon = {
+                    Icon(
+                        imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
+                        contentDescription = null,
+                    )
+                },
+                selected = selected,
                 onClick = { onTabClick(tab) },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
             )

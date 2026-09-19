@@ -3,9 +3,7 @@ package com.nikpapajohn.moviedb.ui.about
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
@@ -41,8 +39,7 @@ fun AboutRoute(onNavigateBack: () -> Unit) {
 @Composable
 fun AboutScreen(onNavigateBack: () -> Unit) {
     Scaffold(
-        contentWindowInsets = WindowInsets.safeDrawing
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.nav_about)) },
@@ -89,7 +86,6 @@ fun AboutScreen(onNavigateBack: () -> Unit) {
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
 
-            // Required by the TMDB API terms of use, in the wording they ask for.
             Text(
                 text = stringResource(R.string.profile_attribution),
                 style = MaterialTheme.typography.bodySmall,

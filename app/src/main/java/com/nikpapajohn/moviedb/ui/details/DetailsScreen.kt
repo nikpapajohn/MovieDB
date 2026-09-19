@@ -1,17 +1,27 @@
 package com.nikpapajohn.moviedb.ui.details
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent as AndroidIntent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -19,13 +29,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,10 +54,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -62,6 +81,7 @@ import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Effect
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Intent
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.State
+import androidx.core.net.toUri
 
 const val FAVORITE_BUTTON_TAG = "details_favorite_button"
 
@@ -72,11 +92,14 @@ fun DetailsRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var message by remember { mutableStateOf<UiText?>(null) }
+    val context = LocalContext.current
 
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {
             Effect.NavigateBack -> onNavigateBack()
             is Effect.ShowMessage -> message = effect.text
+            is Effect.ShareText -> context.shareText(effect.text)
+            is Effect.OpenUrl -> context.openUrl(effect.url)
         }
     }
 
@@ -97,15 +120,20 @@ fun DetailsScreen(
     onIntent: (Intent) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var menuExpanded by remember { mutableStateOf(false) }
     SnackbarMessage(message = message, hostState = snackbarHostState, onShown = onMessageShown)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets.safeDrawing
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.details_title)) },
+                title = {
+                    Text(
+                        text = stringResource(R.string.details_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { onIntent(Intent.BackClicked) }) {
                         Icon(
@@ -114,18 +142,50 @@ fun DetailsScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                        enabled = state.details != null,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = stringResource(R.string.action_more),
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.action_share)) },
+                            onClick = {
+                                menuExpanded = false
+                                onIntent(Intent.ShareClicked)
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.action_open_tmdb)) },
+                            onClick = {
+                                menuExpanded = false
+                                onIntent(Intent.OpenInTmdbClicked)
+                            },
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
             )
         },
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize(),
+            contentAlignment = Alignment.TopCenter,
         ) {
             when {
                 state.isLoading && state.details == null -> LoadingState()
@@ -153,8 +213,13 @@ private fun DetailsContent(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            // Order matters: widthIn has to come before fillMaxWidth. The other way round,
+            // fillMaxWidth pins the minimum width to the parent's and the cap is ignored.
+            // Landscape and tablets: the column stops growing instead of stretching a poster
+            // block across 1000dp of screen.
+            .widthIn(max = 640.dp)
+            .fillMaxWidth()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -164,54 +229,97 @@ private fun DetailsContent(
                 size = PosterSize.DETAILS,
                 contentDescription = stringResource(R.string.cd_poster, details.title),
                 modifier = Modifier
-                    .width(140.dp)
-                    .height(210.dp),
+                    .width(150.dp)
+                    .height(225.dp),
             )
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(text = details.title, style = MaterialTheme.typography.titleLarge)
-                details.tagline?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                RatingRow(rating = details.rating, voteCount = details.voteCount, starSize = 22)
+            Column(
+                // Matches the poster's height so the row's content spreads across it instead
+                // of clumping at the top: title lower, rating near the poster's middle, chips
+                // and the favorite button carried down toward its bottom edge, like the mock.
+                modifier = Modifier
+                    .weight(1f)
+                    .height(225.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // An empty first item so SpaceBetween's even gaps include one above the
+                // title too — otherwise the title would sit flush against the top edge.
+                Spacer(modifier = Modifier.height(1.dp))
+                Text(
+                    text = details.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+                RatingRow(
+                    rating = details.rating,
+                    voteCount = details.voteCount,
+                    starSize = 18,
+                    ratingStyle = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    voteCountStyle = MaterialTheme.typography.labelSmall,
+                )
                 GenreChipRow(details)
+                FavoriteButton(isFavorite = isFavorite, onToggleFavorite = onToggleFavorite)
             }
         }
 
-        FavoriteButton(isFavorite = isFavorite, onToggleFavorite = onToggleFavorite)
+        // Extra breathing room above and below, so the card is as separated from the poster
+        // block as it is from the overview.
+        FactsCard(details, modifier = Modifier.padding(vertical = 8.dp))
 
-        FactsCard(details)
-
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                text = stringResource(R.string.details_overview),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = details.overview.ifBlank { stringResource(R.string.details_no_overview) },
-                style = MaterialTheme.typography.bodyMedium,
-            )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.details_overview),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                details.tagline?.let { tagline ->
+                    Text(
+                        text = tagline,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Text(
+                    text = details.overview.ifBlank { stringResource(R.string.details_no_overview) },
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
         }
     }
 }
 
+/**
+ * Hand-rolled instead of AssistChip: the Material chip has a fixed 32dp height and its own
+ * padding, which is larger than the mockup's label. FlowRow keeps them on one line and
+ * wraps to a second only when the genres do not fit.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun GenreChipRow(details: MovieDetails) {
     if (details.genres.isEmpty()) return
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
         details.genres.take(3).forEach { genre ->
-            AssistChip(
-                onClick = {},
-                enabled = false,
-                label = { Text(genre.name) },
-                colors = AssistChipDefaults.assistChipColors(
-                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    disabledLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ),
+            Text(
+                text = genre.name,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
             )
         }
     }
@@ -222,50 +330,79 @@ private fun FavoriteButton(isFavorite: Boolean, onToggleFavorite: () -> Unit) {
     val label = stringResource(
         if (isFavorite) R.string.details_added_favorite else R.string.details_add_favorite,
     )
+    // No fixed height: a long label (Greek, or a large system font scale) has to wrap
+    // instead of being clipped.
+    val buttonModifier = Modifier
+        .widthIn(max = 320.dp)
+        .fillMaxWidth()
+        .testTag(FAVORITE_BUTTON_TAG)
+    val contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+    val iconSize = Modifier.size(18.dp)
+
     if (isFavorite) {
         Button(
             onClick = onToggleFavorite,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(FAVORITE_BUTTON_TAG),
+            modifier = buttonModifier,
+            shape = CircleShape,
+            contentPadding = contentPadding,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         ) {
-            Icon(Icons.Filled.Favorite, contentDescription = null)
-            Text(text = label, modifier = Modifier.padding(start = 8.dp))
-            Icon(
-                Icons.Filled.Check,
-                contentDescription = null,
-                modifier = Modifier.padding(start = 8.dp),
+            Icon(Icons.Filled.Favorite, contentDescription = null, modifier = iconSize)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 6.dp),
             )
+            Icon(Icons.Filled.Check, contentDescription = null, modifier = iconSize)
         }
     } else {
         OutlinedButton(
             onClick = onToggleFavorite,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(FAVORITE_BUTTON_TAG),
+            modifier = buttonModifier,
+            shape = CircleShape,
+            contentPadding = contentPadding,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.primary,
+            ),
         ) {
-            Icon(Icons.Outlined.FavoriteBorder, contentDescription = null)
-            Text(text = label, modifier = Modifier.padding(start = 8.dp))
+            Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = iconSize)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 6.dp),
+            )
         }
     }
 }
 
 @Composable
-private fun FactsCard(details: MovieDetails) {
+private fun FactsCard(details: MovieDetails, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Fact(
                 icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = null) },
                 label = stringResource(R.string.details_release_date),
                 value = details.releaseYear ?: "—",
+                modifier = Modifier.weight(1f),
             )
             Fact(
                 icon = { Icon(Icons.Filled.Schedule, contentDescription = null) },
@@ -273,21 +410,49 @@ private fun FactsCard(details: MovieDetails) {
                 value = details.runtimeMinutes
                     ?.let { stringResource(R.string.details_runtime_minutes, it) }
                     ?: "—",
+                modifier = Modifier.weight(1f),
             )
         }
     }
 }
 
 @Composable
-private fun Fact(icon: @Composable () -> Unit, label: String, value: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            icon()
+private fun Fact(
+    icon: @Composable () -> Unit,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        icon()
+        // Label and value share the column to the right of the icon, so the value lines up
+        // under its own title rather than under the icon.
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(text = label, style = MaterialTheme.typography.bodySmall)
+            Text(text = value, style = MaterialTheme.typography.titleMedium)
         }
-        Text(text = value, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+/**
+ * The ViewModel decides what to share; only the UI layer touches Android intents.
+ * Both calls are guarded: a device with no browser or share target must not crash the app.
+ */
+private fun Context.shareText(text: String) {
+    val send = AndroidIntent(AndroidIntent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(AndroidIntent.EXTRA_TEXT, text)
+    }
+    runCatching { startActivity(AndroidIntent.createChooser(send, null)) }
+}
+
+private fun Context.openUrl(url: String) {
+    try {
+        startActivity(AndroidIntent(AndroidIntent.ACTION_VIEW, url.toUri()))
+    } catch (e: ActivityNotFoundException) {
+        // No browser installed; nothing useful to do beyond ignoring the tap.
     }
 }
