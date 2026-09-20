@@ -71,6 +71,16 @@ td code{white-space:nowrap}
 .b-med{background:var(--med-bg);color:var(--med)}
 .b-low{background:var(--low-bg);color:var(--low)}
 .b-good{background:var(--good-bg);color:var(--good)}
+.b-fixed{background:var(--good-bg);color:var(--good)}
+.b-partial{background:var(--med-bg);color:var(--med)}
+.b-open{background:var(--surface-2);color:var(--text-dim);border:1px solid var(--border)}
+.finding.done{opacity:.92}
+.finding.done > h3{text-decoration:none}
+.fixnote{margin-top:14px;padding:10px 14px;border-radius:8px;background:var(--good-bg);
+  border:1px solid color-mix(in srgb,var(--good) 30%,transparent);font-size:.9rem}
+.fixnote.open{background:var(--surface-2);border-color:var(--border)}
+.fixnote .h{font-weight:650;color:var(--text)}
+.fixnote code{background:transparent;border:0;padding:0}
 
 .finding{background:var(--surface);border:1px solid var(--border);border-inline-start:4px solid var(--border);
   border-radius:10px;padding:18px 20px;margin:18px 0}
@@ -118,6 +128,7 @@ footer{margin-top:56px;padding:24px 0 40px;border-top:1px solid var(--border);
       <span>Branch: <strong>claude/code-review-html-report-k68a16</strong></span>
       <span>Ημερομηνία: <strong>20 Σεπτεμβρίου 2026</strong></span>
       <span>Έκταση: <strong>~5.300 γραμμές Kotlin, 69 αρχεία</strong></span>
+      <span>Αναθεώρηση 2 — <strong>με κατάσταση διορθώσεων</strong></span>
     </div>
   </div>
 </header>
@@ -129,11 +140,15 @@ footer{margin-top:56px;padding:24px 0 40px;border-top:1px solid var(--border);
 <p>Τα ευρήματα παρακάτω είναι, στη συντριπτική τους πλειοψηφία, <strong>λεπτομέρειες σε ήδη σωστές αποφάσεις</strong> — όχι αρχιτεκτονικά λάθη. Τέσσερα όμως είναι πραγματικά bugs που θα εμφανιστούν σε production: ένα σπάει το structured concurrency, ένα μπορεί να ρίξει την εφαρμογή, ένα είναι race condition στο toggle των favorites, και ένα ακυρώνει σιωπηλά μια λειτουργία που ο ίδιος ο κώδικας τεκμηριώνει ότι κάνει.</p>
 
 <div class="cards">
-  <div class="card high"><div class="n">4</div><div class="l">Υψηλή</div></div>
-  <div class="card med"><div class="n">7</div><div class="l">Μεσαία</div></div>
-  <div class="card low"><div class="n">14</div><div class="l">Χαμηλή</div></div>
-  <div class="card good"><div class="n">44</div><div class="l">Υπάρχοντα tests</div></div>
+  <div class="card high"><div class="n">4/4</div><div class="l">Υψηλή — διορθώθηκαν</div></div>
+  <div class="card med"><div class="n">7/7</div><div class="l">Μεσαία — διορθώθηκαν</div></div>
+  <div class="card low"><div class="n">16/20</div><div class="l">Χαμηλή — διορθώθηκαν</div></div>
+  <div class="card good"><div class="n">27</div><div class="l">Σύνολο διορθωμένων</div></div>
 </div>
+
+<p class="lead">Διόρθωση αρίθμησης: η πρώτη έκδοση αυτού του report έγραφε «14 χαμηλής προτεραιότητας».
+Ο σωστός αριθμός είναι <strong>20</strong> — τα L-1…L-6 συν τις 14 γραμμές του πίνακα L-7· το 14 ήταν
+οι γραμμές εκείνου του πίνακα, όχι το σύνολο.</p>
 
 <h3>Βαθμολογία ανά τομέα</h3>
 <table>
@@ -141,18 +156,73 @@ footer{margin-top:56px;padding:24px 0 40px;border-top:1px solid var(--border);
 <tbody>
 <tr><td>Clean Architecture / layering</td><td><span class="badge b-good">Πολύ καλό</span></td><td>Σωστή κατεύθυνση εξαρτήσεων, repository interfaces στο domain, mappers στο data layer. Μία μόνο διαρροή Compose στο domain (τεκμηριωμένη).</td></tr>
 <tr><td>MVI / state management</td><td><span class="badge b-good">Πολύ καλό</span></td><td>Καθαρό State/Intent/Effect/Change. Μικρές ασυνέπειες μεταξύ των τεσσάρων features.</td></tr>
-<tr><td>Coroutines &amp; Flow</td><td><span class="badge b-med">Χρειάζεται δουλειά</span></td><td>Το <code>safeApiCall</code> καταπίνει <code>CancellationException</code>· τέσσερα ανεπίβλεπτα <code>launch</code> γύρω από writes.</td></tr>
-<tr><td>Compose / performance</td><td><span class="badge b-med">Χρειάζεται δουλειά</span></td><td>Το <code>UiText</code> είναι unstable, οπότε κανένα screen δεν κάνει skip. <code>SubcomposeAsyncImage</code> μέσα σε <code>LazyColumn</code>.</td></tr>
+<tr><td>Coroutines &amp; Flow</td><td><span class="badge b-fixed">Διορθώθηκε</span></td><td>Η ακύρωση διαδίδεται πια παντού, και κάθε write path επιστρέφει σφάλμα αντί να ρίχνει την εφαρμογή.</td></tr>
+<tr><td>Compose / performance</td><td><span class="badge b-fixed">Διορθώθηκε</span></td><td><code>UiText</code> σταθερό, <code>AsyncImage</code> στη λίστα, pagination από το scroll position. Επαλήθευση στα compose_reports μετά από build.</td></tr>
 <tr><td>Ασφάλεια (crypto)</td><td><span class="badge b-good">Πολύ καλό</span></td><td>Σωστό GCM, σωστό key handling, ρεαλιστικό threat model στο README. Ένα μικρό race στη δημιουργία κλειδιού.</td></tr>
-<tr><td>i18n / locale</td><td><span class="badge b-high">Bug</span></td><td>Ο μηχανισμός επαναφόρτωσης μετά από αλλαγή γλώσσας δεν εκτελείται ποτέ· το <code>GenreCache</code> δεν ακυρώνεται ποτέ.</td></tr>
-<tr><td>Testing</td><td><span class="badge b-med">Καλό, με κενά</span></td><td>44 tests, εξαιρετικός reducer test. Μηδενική κάλυψη σε 2 ViewModels και στο <code>FavoritesRepositoryImpl</code>.</td></tr>
-<tr><td>Build / tooling</td><td><span class="badge b-low">Μικρά κενά</span></td><td>Version catalog, R8, Compose metrics — όλα σωστά. Λείπει static analysis (ktlint/detekt) και CI.</td></tr>
+<tr><td>i18n / locale</td><td><span class="badge b-fixed">Διορθώθηκε</span></td><td>Η επαναφόρτωση εκτελείται πλέον, το <code>GenreCache</code> κλειδώνει στη γλώσσα, και προστέθηκαν plurals σε δύο γλώσσες.</td></tr>
+<tr><td>Testing</td><td><span class="badge b-med">Αμετάβλητο</span></td><td>44 tests. <strong>Δεν γράφτηκαν νέα</strong> — τα κενά του §4 παραμένουν, και καμία διόρθωση δεν είναι κλειδωμένη με test.</td></tr>
+<tr><td>Build / tooling</td><td><span class="badge b-partial">Μερικώς</span></td><td>Προστέθηκαν stability config και προειδοποίηση για το token. Static analysis και CI παραμένουν ανοιχτά (L-7l).</td></tr>
 </tbody>
 </table>
+
+<h2 id="status"><span class="num">0β.</span> Κατάσταση διορθώσεων</h2>
+<p class="lead">Οι διορθώσεις παραδόθηκαν ως τρία διαδοχικά patches πάνω στο commit του report.</p>
+
+<table>
+<thead><tr><th>Patch</th><th>Περιεχόμενο</th><th>Αρχεία</th><th>Κατάσταση</th></tr></thead>
+<tbody>
+<tr><td><code>high-severity-fixes.patch</code></td><td>H-1 … H-4</td><td>7</td><td><span class="badge b-fixed">Πλήρες</span></td></tr>
+<tr><td><code>medium-severity-fixes.patch</code></td><td>M-1 … M-7</td><td>10</td><td><span class="badge b-fixed">Πλήρες</span></td></tr>
+<tr><td><code>low-severity-fixes.patch</code></td><td>L-1 … L-7, εκτός τεσσάρων σημείων</td><td>39</td><td><span class="badge b-partial">Μερικό</span></td></tr>
+</tbody>
+</table>
+
+<div class="note">
+<p><span class="label">Τίποτα δεν έχει μεταγλωττιστεί.</span> Οι διορθώσεις γράφτηκαν σε περιβάλλον
+χωρίς Android SDK, οπότε δεν έτρεξε ούτε <code>assembleDebug</code> ούτε <code>testDebugUnitTest</code>.
+Επαληθεύτηκαν με ανάγνωση: ισορροπία παρενθέσεων, αχρησιμοποίητα και ελλείποντα imports, call sites
+που άλλαξαν, και ότι τα τρία patches εφαρμόζονται στη σειρά πάνω σε καθαρό checkout. Αυτό <em>δεν</em>
+αντικαθιστά ένα build — το patch των χαμηλής προτεραιότητας αγγίζει 39 αρχεία, ανάμεσά τους ένα Hilt
+module, τους πόρους και τη ρύθμιση σταθερότητας του Compose compiler.</p>
+</div>
+
+<h3>Τι δεν εφαρμόστηκε, και γιατί</h3>
+<table>
+<thead><tr><th>#</th><th>Εύρημα</th><th>Λόγος</th></tr></thead>
+<tbody>
+<tr><td>L-7a</td><td>Οριζόντια insets στο <code>NavHost</code></td><td>Κάθε οθόνη τα εφαρμόζει ήδη μέσω <code>contentWindowInsets</code>· προσθήκη στο <code>NavHost</code> θα τα <strong>διπλασίαζε</strong>. Το εύρημα ήταν «εύκολο να σπάσει σε μελλοντική οθόνη», όχι υπαρκτό σφάλμα, και θέλει απόφαση για το ποιο επίπεδο κατέχει τα insets.</td></tr>
+<tr><td>L-7k</td><td>Τοπικό state για το πεδίο αναζήτησης</td><td>Αλλάζει τη ροή της αναζήτησης (debounce, <code>SearchToggled</code> που μηδενίζει το query). Χωρίς δυνατότητα εκτέλεσης, το ρίσκο να χαλάσει λειτουργία που σήμερα δουλεύει υπερβαίνει το όφελος για ένα πιθανό «αναπήδημα του cursor».</td></tr>
+<tr><td>L-7l</td><td>ktlint / detekt σε CI</td><td>Χρειάζεται ένα πραγματικό τρέξιμο για να παραχθεί baseline. Χωρίς αυτό, η ρύθμιση θα ρίχνει το build με εκατοντάδες παραβιάσεις την πρώτη φορά.</td></tr>
+<tr><td>L-7i</td><td>HTTP cache <em>(το μισό εύρημα)</em></td><td>Το <code>callTimeout</code> μπήκε. Το OkHttp <code>Cache</code> όχι: θέλει injection του <code>Context</code> και συνειδητή πολιτική caching, και χωρίς δοκιμή μπορεί να σερβίρει παλιά δεδομένα.</td></tr>
+</tbody>
+</table>
+
+<h3>Δύο αποφάσεις που αξίζει να ξανακοιτάξετε</h3>
+<ul>
+<li><strong>L-4 είναι καθαρά στυλιστικό.</strong> Οι reducers βγήκαν σε ξεχωριστά αρχεία ώστε να
+ταιριάζουν με το <code>PopularReducer</code>. Η αντίστροφη κατεύθυνση — όλοι μέσα στα Contracts —
+είναι εξίσου θεμιτή· επιλέχθηκε αυτή που προβάλλει το README.</li>
+<li><strong>Το <code>profile_storage_body</code> εμφανίστηκε αντί να διαγραφεί.</strong> Ήταν
+μεταφρασμένο αλλά αχρησιμοποίητο, και το README περιγράφει την οθόνη Profile ως αυτήν που εξηγεί
+πώς αποθηκεύονται τα αγαπημένα. Είναι ένα <code>Text</code> παραπάνω σε υπάρχουσα κάρτα· αν δεν το
+θέλετε, αφαιρείται μόνο του.</li>
+</ul>
+
+<div class="note">
+<p><span class="label">Μια παράλειψη που διορθώθηκε εκ των υστέρων.</span> Το <strong>L-2</strong>
+είχε αρχικά παραλειφθεί από το patch χωρίς να αναφερθεί στις εξαιρέσεις. Εντοπίστηκε κατά τη σύνταξη
+αυτής της αναθεώρησης και υλοποιήθηκε πριν οριστικοποιηθεί το patch.</p>
+</div>
+
+<h3>Παράπλευρη αλλαγή στα tests</h3>
+<p>Η αφαίρεση του <code>backdropPath</code> (L-6) έσπαγε δύο αρχεία test που το περνούσαν στα fixtures
+τους — <code>DetailsViewModelTest</code> και <code>UseCasesTest</code>. Το patch τα διορθώνει. Τα πεδία
+<code>backdrop_path</code> στα DTOs παρέμειναν: τεκμηριώνουν το payload του TMDB.</p>
 
 <div class="toc">
 <strong>Περιεχόμενα</strong>
 <ol>
+  <li><a href="#status">Κατάσταση διορθώσεων</a></li>
   <li><a href="#high">Ευρήματα υψηλής προτεραιότητας</a></li>
   <li><a href="#med">Ευρήματα μεσαίας προτεραιότητας</a></li>
   <li><a href="#low">Ευρήματα χαμηλής προτεραιότητας</a></li>
@@ -167,7 +237,7 @@ footer{margin-top:56px;padding:24px 0 40px;border-top:1px solid var(--border);
 <p class="lead">Πραγματικά bugs με ορατή συνέπεια στον χρήστη ή στη σταθερότητα.</p>
 
 <div class="finding high">
-<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-1</span> Το <code>safeApiCall</code> καταπίνει το <code>CancellationException</code></h3>
+<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-1</span> <span class="badge b-fixed">Διορθώθηκε</span> Το <code>safeApiCall</code> καταπίνει το <code>CancellationException</code></h3>
 <p class="loc">core/SafeCall.kt:20</p>
 <p><span class="label">Το πρόβλημα.</span> Το τελευταίο <code>catch (e: Exception)</code> πιάνει και το <code>CancellationException</code> — στην Kotlin είναι <code>java.util.concurrent.CancellationException</code>, δηλαδή κανονικό <code>Exception</code>. Όταν ακυρωθεί το <code>viewModelScope</code> (ο χρήστης φεύγει από την οθόνη) ή όταν το <code>loadFirstPage</code> ακυρώνει το προηγούμενο job σε κάθε πάτημα πλήκτρου στην αναζήτηση, η ακύρωση δεν διαδίδεται: μετατρέπεται σε <code>AppError.Unknown</code>.</p>
 <p><span class="label">Γιατί έχει σημασία.</span> Σπάει το structured concurrency. Πρακτικά: μια ακυρωμένη αναζήτηση γράφει <code>Change.LoadFailed</code> στο state, οπότε ο χρήστης βλέπει «Κάτι πήγε στραβά» ενώ απλώς πληκτρολόγησε το επόμενο γράμμα. Επιπλέον, η coroutine συνεχίζει να εκτελεί κώδικα μετά την ακύρωσή της.</p>
@@ -190,10 +260,11 @@ suspend fun &lt;T&gt; safeApiCall(block: suspend () -&gt; T): Result&lt;T&gt; = 
     Result.failure(AppErrorException(AppError.Unknown(e)))
 }</code></pre>
 <p class="note">Το ίδιο μοτίβο υπάρχει και στο <code>EncryptedFavoritesSerializer.readFrom</code> (βλ. <a href="#M-7">M-7</a>) και στο <code>KeystoreCryptoManager.decrypt</code>. Ως κανόνας: κάθε γενικό <code>catch (e: Exception)</code> μέσα σε <code>suspend</code> function χρειάζεται ένα <code>catch (e: CancellationException) { throw e }</code> από πάνω του.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>core/SafeCall.kt</code>. Προστέθηκε <code>catch (e: CancellationException) { throw e }</code> ως πρώτο branch. Ο ίδιος φρουρός μπήκε και στον νέο <code>safeCall</code>.</div>
 </div>
 
 <div class="finding high">
-<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-2</span> Τέσσερα ανεπίβλεπτα <code>viewModelScope.launch</code> γύρω από writes → crash</h3>
+<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-2</span> <span class="badge b-fixed">Διορθώθηκε</span> Τέσσερα ανεπίβλεπτα <code>viewModelScope.launch</code> γύρω από writes → crash</h3>
 <p class="loc">ui/popular/PopularViewModel.kt:74 · ui/details/DetailsViewModel.kt:65 · ui/favorites/FavoritesViewModel.kt:46 · ui/profile/ProfileViewModel.kt:42</p>
 <p><span class="label">Το πρόβλημα.</span> Και στα τέσσερα σημεία καλείται ένα suspend use case που γράφει στο DataStore, χωρίς <code>try/catch</code> και χωρίς <code>CoroutineExceptionHandler</code>:</p>
 <pre><code>is Intent.FavoriteToggled -&gt; viewModelScope.launch {
@@ -212,10 +283,11 @@ suspend fun &lt;T&gt; safeApiCall(block: suspend () -&gt; T): Result&lt;T&gt; = 
         .onFailure { emit(Effect.ShowMessage(it.toAppError().toUiText())) }
 }</code></pre>
 <p>Εναλλακτικά (πιο καθαρό για MVI): αλλάξτε το <code>FavoritesRepository.toggle</code> ώστε να επιστρέφει <code>Result&lt;Boolean&gt;</code>, οπότε η αποτυχία γίνεται τύπος αντί για exception — ακριβώς όπως ήδη κάνει το <code>MovieRepository</code> με το <code>safeApiCall</code>. Αυτό θα έκανε και τη συμπεριφορά των δύο repositories συνεπή μεταξύ τους.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>4 ViewModels + core/SafeCall.kt</code>. Νέος <code>safeCall</code> δίπλα στο <code>safeApiCall</code>· και τα τέσσερα write paths τον χρησιμοποιούν. Το μήνυμα επιτυχίας εκπέμπεται πλέον μόνο όταν η εγγραφή πέτυχε.</div>
 </div>
 
 <div class="finding high">
-<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-3</span> Race condition (TOCTOU) στο <code>FavoritesRepositoryImpl.toggle()</code></h3>
+<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-3</span> <span class="badge b-fixed">Διορθώθηκε</span> Race condition (TOCTOU) στο <code>FavoritesRepositoryImpl.toggle()</code></h3>
 <p class="loc">data/repository/FavoritesRepositoryImpl.kt:39-50</p>
 <p><span class="label">Το πρόβλημα.</span> Το <code>wasFavorite</code> διαβάζεται σε ξεχωριστή συναλλαγή, <em>πριν</em> το <code>updateData</code>, και μετά χρησιμοποιείται <em>μέσα</em> του:</p>
 <pre><code>override suspend fun toggle(movie: Movie): Boolean = withContext(dispatchers.io) {
@@ -238,10 +310,11 @@ suspend fun &lt;T&gt; safeApiCall(block: suspend () -&gt; T): Result&lt;T&gt; = 
     }
     updated.movies.any { it.id == movie.id }
 }</code></pre>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>FavoritesRepositoryImpl.kt</code>. Η απόφαση μεταφέρθηκε μέσα στο <code>updateData</code> και η επιστροφή προκύπτει από το αποτέλεσμα της συναλλαγής. Έφυγε και η δεύτερη αποκρυπτογράφηση.</div>
 </div>
 
 <div class="finding high">
-<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-4</span> Η επαναφόρτωση μετά από αλλαγή γλώσσας δεν εκτελείται ποτέ</h3>
+<h3><span class="badge b-high">Υψηλή</span> <span class="id">H-4</span> <span class="badge b-fixed">Διορθώθηκε</span> Η επαναφόρτωση μετά από αλλαγή γλώσσας δεν εκτελείται ποτέ</h3>
 <p class="loc">ui/popular/PopularScreen.kt:94-102 · AndroidManifest.xml:17-21</p>
 <p><span class="label">Το πρόβλημα.</span> Ο κώδικας σκοπεύει να ξαναφορτώσει τη σελίδα 1 όταν αλλάξει η γλώσσα, παρακάμπτοντας την πρώτη σύνθεση ώστε να μη γίνει διπλό fetch στην εκκίνηση:</p>
 <pre><code>var isFirstLocale by remember { mutableStateOf(true) }   <span class="bad">// ← remember, όχι rememberSaveable</span>
@@ -261,6 +334,7 @@ LaunchedEffect(languageTag) {
     }
 }</code></pre>
 <p>Πιο σωστά ακόμη, η γλώσσα με την οποία φορτώθηκαν τα δεδομένα είναι ιδιότητα των δεδομένων, όχι του UI: αν το <code>PopularViewModel</code> κρατούσε το language tag της τελευταίας φόρτωσης, η οθόνη δεν θα χρειαζόταν καθόλου αυτή τη λογική. Βλ. και <a href="#M-1">M-1</a>, που είναι η δεύτερη μισή του ίδιου προβλήματος.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>PopularScreen.kt</code>. Ο φρουρός έγινε <code>rememberSaveable</code> πάνω στο language tag, ώστε να επιβιώνει της ανακατασκευής του Activity.</div>
 </div>
 
 <!-- ══════════════════════ MEDIUM ══════════════════════ -->
@@ -268,7 +342,7 @@ LaunchedEffect(languageTag) {
 <p class="lead">Λάθος αποτελέσματα σε συγκεκριμένα σενάρια, ή μετρήσιμο κόστος σε απόδοση.</p>
 
 <div class="finding med" id="M-1">
-<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-1</span> Το <code>GenreCache</code> δεν ακυρώνεται ποτέ σε αλλαγή γλώσσας</h3>
+<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-1</span> <span class="badge b-fixed">Διορθώθηκε</span> Το <code>GenreCache</code> δεν ακυρώνεται ποτέ σε αλλαγή γλώσσας</h3>
 <p class="loc">data/remote/GenreCache.kt:18-33</p>
 <p><span class="label">Το πρόβλημα.</span> Το <code>cache: Map&lt;Int, String&gt;</code> γεμίζει μία φορά ανά process και δεν καθαρίζεται ποτέ. Το <code>genre/movie/list</code> όμως επιστρέφει <strong>μεταφρασμένα</strong> ονόματα, επειδή ο <code>LanguageInterceptor</code> προσθέτει το <code>language</code> σε κάθε request.</p>
 <p><span class="label">Γιατί έχει σημασία.</span> Είναι ακριβώς το σενάριο που ο <code>LanguageInterceptor</code> γράφτηκε για να καλύψει — το σχόλιό του λέει ρητά ότι διαβάζει τη γλώσσα φρέσκια σε κάθε κλήση «γιατί μια τιμή σε <code>@Singleton</code> θα έχανε μια αλλαγή locale». Το <code>GenreCache</code> είναι ακριβώς μια τέτοια τιμή σε <code>@Singleton</code>. Αποτέλεσμα: ακόμη και αν διορθωθεί το <a href="#high">H-4</a>, οι κατηγορίες στη λίστα θα παραμείνουν στην παλιά γλώσσα μέχρι να σκοτωθεί το process.</p>
@@ -294,10 +368,11 @@ class GenreCache @Inject constructor(
     }
 }</code></pre>
 <p>Δευτερεύον σημείο: σε αποτυχία, το cache μένει άδειο και κάθε επόμενη σελίδα ξαναδοκιμάζει το δικτυακό call <em>μέσα στο mutex</em>, σειριοποιώντας όλα τα mappings πίσω από ένα timeout. Ένα μικρό negative-cache window (π.χ. μη ξαναδοκιμάσεις για 30 δευτερόλεπτα) το αποτρέπει.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>GenreCache.kt</code>. Το cache κλειδώνεται πλέον στη γλώσσα με την οποία κατέβηκε. <em>Δεν</em> έγινε injectable το language: ο Dagger αγνοεί τις default τιμές σε <code>@Inject constructor</code> και θα ζητούσε binding για <code>Function0&lt;String&gt;</code>.</div>
 </div>
 
 <div class="finding med">
-<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-2</span> Το <code>UiText</code> είναι unstable, άρα κανένα screen δεν κάνει skip</h3>
+<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-2</span> <span class="badge b-fixed">Διορθώθηκε</span> Το <code>UiText</code> είναι unstable, άρα κανένα screen δεν κάνει skip</h3>
 <p class="loc">core/UiText.kt:12 · ui/details/DetailsContract.kt:8 · ui/profile/ProfileContract.kt:7</p>
 <p><span class="label">Το πρόβλημα.</span> Το <code>UiText.Res</code> έχει πεδίο <code>args: List&lt;Any&gt;</code>. Μια σκέτη <code>List</code> θεωρείται <strong>unstable</strong> από τον Compose compiler, άρα unstable είναι και το <code>UiText</code>, άρα και κάθε <code>State</code> που το περιέχει.</p>
 <p><span class="label">Γιατί έχει σημασία.</span> Το project έχει ήδη ενεργοποιημένα τα Compose compiler reports και έχει προσέξει τη σταθερότητα παντού αλλού — βάζει <code>@Immutable</code> στα domain models και στα <code>PopularContract.State</code>/<code>FavoritesContract.State</code>. Αυτό όμως το ακυρώνει: τα <code>ErrorState(message: UiText)</code>, <code>SnackbarMessage(message: UiText?)</code> και τα <code>DetailsContract.State</code> / <code>ProfileContract.State</code> (που δεν έχουν καν <code>@Immutable</code>) δεν είναι skippable, οπότε ξανατρέχουν σε κάθε recomposition του γονέα ακόμη κι όταν τίποτα δεν έχει αλλάξει.</p>
@@ -312,10 +387,11 @@ sealed interface UiText {
 <span class="cmt">// DetailsContract.kt και ProfileContract.kt — όπως ήδη κάνουν τα άλλα δύο contracts</span>
 @Immutable data class State(...)</code></pre>
 <p class="note">Αν προτιμάτε να μην υπόσχεστε σταθερότητα με annotation, το ίδιο αποτέλεσμα δίνει το <code>stabilityConfigurationFile</code> του Compose compiler — και είναι επίσης η λύση για να φύγει το <code>androidx.compose.runtime.Immutable</code> από το <code>domain/</code> (βλ. <a href="#L-5">L-5</a>). Επαληθεύστε το αποτέλεσμα στο <code>build/compose_reports/*-classes.txt</code>, που ήδη παράγεται.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>UiText.kt, DetailsContract.kt, ProfileContract.kt</code>. <code>@Immutable</code> στο interface και στους δύο υποτύπους, συν τα δύο State που το στερούνταν.</div>
 </div>
 
 <div class="finding med">
-<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-3</span> <code>SubcomposeAsyncImage</code> μέσα σε <code>LazyColumn</code></h3>
+<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-3</span> <span class="badge b-fixed">Διορθώθηκε</span> <code>SubcomposeAsyncImage</code> μέσα σε <code>LazyColumn</code></h3>
 <p class="loc">ui/components/PosterImage.kt:52</p>
 <p><span class="label">Το πρόβλημα.</span> Το <code>PosterImage</code> χρησιμοποιεί <code>SubcomposeAsyncImage</code> και καλείται από το <code>MovieCard</code>, δηλαδή σε κάθε γραμμή της λίστας.</p>
 <p><span class="label">Γιατί έχει σημασία.</span> Η τεκμηρίωση του Coil το λέει ρητά: το <code>SubcomposeAsyncImage</code> είναι <strong>σημαντικά πιο αργό</strong> από το <code>AsyncImage</code>, γιατί το subcomposition δεν μπορεί να γίνει κατά το measure/layout με τον ίδιο τρόπο, και δεν συνιστάται σε scrolling λίστες. Εδώ δεν χρειάζεται καν: τα <code>loading</code>/<code>error</code> slots δεν χρησιμοποιούν το state του request για τίποτα δυναμικό — το <code>loading</code> είναι άδειο και το <code>error</code> είναι ένα στατικό εικονίδιο.</p>
@@ -328,10 +404,11 @@ sealed interface UiText {
     modifier = Modifier.fillMaxSize(),
 )</code></pre>
 <p>Δευτερεύον: η επιλογή μεγέθους (<code>w185</code> / <code>w500</code>) είναι ήδη σωστή και αποτρέπει το κατέβασμα υπερμεγέθων εικόνων — καλή απόφαση που αξίζει να μείνει.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>PosterImage.kt</code>. <code>AsyncImage</code> με flag για το error state αντί για slot, ώστε να μείνει το ίδιο μικρό εικονίδιο χωρίς subcomposition.</div>
 </div>
 
 <div class="finding med">
-<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-4</span> Το pagination trigger μπορεί να ζητήσει την ίδια σελίδα δύο φορές</h3>
+<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-4</span> <span class="badge b-fixed">Διορθώθηκε</span> Το pagination trigger μπορεί να ζητήσει την ίδια σελίδα δύο φορές</h3>
 <p class="loc">ui/popular/PopularScreen.kt:334-340 · ui/popular/PopularViewModel.kt:89-99</p>
 <p><span class="label">Το πρόβλημα.</span> Δύο ζητήματα που αλληλοενισχύονται. Πρώτον, το <code>LaunchedEffect</code> ζει μέσα στο scope του τελευταίου item, οπότε η ύπαρξή του εξαρτάται από ένα <code>if</code> πάνω σε state που αλλάζει. Δεύτερον — και πιο σημαντικό — ο φρουρός στο ViewModel διαβάζει state που ενημερώνεται <em>ασύγχρονα</em>:</p>
 <pre><code>private fun loadNextPage() {
@@ -366,10 +443,11 @@ LaunchedEffect(listState) {
             }
         }
 }</code></pre>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>PopularViewModel.kt, PopularScreen.kt</code>. Το <code>isLoadingMore</code> τίθεται σύγχρονα και τα appends έχουν δικό τους <code>Job</code>· το trigger πέρασε σε <code>snapshotFlow</code> πάνω στο <code>LazyListState</code>. <strong>Μικρή αλλαγή συμπεριφοράς:</strong> η επόμενη σελίδα ζητείται 2 σειρές πριν το τέλος (<code>PREFETCH_DISTANCE</code>).</div>
 </div>
 
 <div class="finding med">
-<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-5</span> Απεριόριστο fan-out στο <code>refresh()</code> των favorites</h3>
+<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-5</span> <span class="badge b-fixed">Διορθώθηκε</span> Απεριόριστο fan-out στο <code>refresh()</code> των favorites</h3>
 <p class="loc">data/repository/FavoritesRepositoryImpl.kt:63-69</p>
 <p><span class="label">Το πρόβλημα.</span> Το <code>refresh()</code> ξεκινά ένα <code>async</code> ανά αποθηκευμένο favorite, χωρίς όριο ταυτοχρονισμού. Το σχόλιο εξηγεί σωστά <em>γιατί</em> είναι παράλληλο («μια ντουζίνα favorites δεν πρέπει να σημαίνει μια ντουζίνα διαδοχικά round trips»), αλλά δεν βάζει ταβάνι.</p>
 <p><span class="label">Γιατί έχει σημασία.</span> Τα favorites δεν έχουν ανώτατο όριο. Ένας χρήστης με 200 αποθηκευμένες ταινίες προκαλεί 200 ταυτόχρονα HTTP requests κάθε φορά που ανοίγει την καρτέλα Favorites — πάνω από το <code>maxRequests</code> (64) του OkHttp dispatcher, με μεγάλη πιθανότητα rate limiting από το TMDB και έντονη κατανάλωση μπαταρίας/δεδομένων. Το <code>FavoritesRoute</code> καλεί <code>Refresh</code> σε <strong>κάθε</strong> είσοδο στην οθόνη.</p>
@@ -386,10 +464,11 @@ val refreshed = current.map { favorite -&gt;
     }
 }.awaitAll()</code></pre>
 <p>Αξίζει επίσης ένας έλεγχος «πότε έγινε τελευταία φορά»: ένα refresh ανά είσοδο στην οθόνη είναι υπερβολικό όταν η μόνη αλλαγή που μπορεί να συμβεί είναι η γλώσσα. Ένα πεδίο <code>lastRefreshedLanguage</code> θα το περιόριζε σε μία φορά ανά πραγματική αλλαγή.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>FavoritesRepositoryImpl.kt</code>. <code>Semaphore(6)</code> γύρω από κάθε κλήση λεπτομερειών.</div>
 </div>
 
 <div class="finding med">
-<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-6</span> Το <code>FavoritesViewModel</code> αγνοεί το αποτέλεσμα του toggle</h3>
+<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-6</span> <span class="badge b-fixed">Διορθώθηκε</span> Το <code>FavoritesViewModel</code> αγνοεί το αποτέλεσμα του toggle</h3>
 <p class="loc">ui/favorites/FavoritesViewModel.kt:46-49</p>
 <p><span class="label">Το πρόβλημα.</span> Το μήνυμα είναι σταθερό «αφαιρέθηκε», ανεξάρτητα από το τι πραγματικά συνέβη:</p>
 <pre><code>is Intent.FavoriteToggled -&gt; viewModelScope.launch {
@@ -398,10 +477,11 @@ val refreshed = current.map { favorite -&gt;
 }</code></pre>
 <p><span class="label">Γιατί έχει σημασία.</span> Σήμερα «τυχαίνει» να είναι σωστό, επειδή στην οθόνη Favorites όλα τα items είναι ήδη αγαπημένα. Είναι όμως εύθραυστη υπόθεση, και σε συνδυασμό με το <a href="#high">H-3</a> γίνεται ορατό λάθος: ένα διπλό πάτημα μπορεί να αφήσει την ταινία αποθηκευμένη ενώ το μήνυμα λέει ότι αφαιρέθηκε. Το <code>DetailsViewModel</code> κάνει ήδη το σωστό — χρησιμοποιεί την επιστρεφόμενη τιμή — οπότε πρόκειται και για ασυνέπεια μεταξύ δύο features που καλούν το ίδιο use case.</p>
 <p><span class="label">Πρόταση.</span> Χρησιμοποιήστε την επιστροφή, όπως στο <code>DetailsViewModel</code> (ο κώδικας του <a href="#high">H-2</a> τα καλύπτει και τα δύο μαζί).</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>FavoritesViewModel.kt</code>. Το μήνυμα ακολουθεί πλέον την τιμή που επιστρέφει το toggle.</div>
 </div>
 
 <div class="finding med" id="M-7">
-<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-7</span> Ακύρωση κατά την ανάγνωση μπορεί να θεωρηθεί «καταστροφή αρχείου»</h3>
+<h3><span class="badge b-med">Μεσαία</span> <span class="id">M-7</span> <span class="badge b-fixed">Διορθώθηκε</span> Ακύρωση κατά την ανάγνωση μπορεί να θεωρηθεί «καταστροφή αρχείου»</h3>
 <p class="loc">data/local/favorites/EncryptedFavoritesSerializer.kt:26-29</p>
 <p><span class="label">Το πρόβλημα.</span> Το <code>readFrom</code> μετατρέπει <em>κάθε</em> <code>Exception</code> σε <code>CorruptionException</code>:</p>
 <pre><code>} catch (e: Exception) {
@@ -419,6 +499,7 @@ val refreshed = current.map { favorite -&gt;
     throw CorruptionException("Favorites payload is malformed", e)
 }</code></pre>
 <p>Το ίδιο ισχύει και για το <code>KeystoreCryptoManager.decrypt</code> (γραμμή 59), όπου το <code>catch (e: Exception)</code> τυλίγει τα πάντα σε <code>CryptoUnavailableException</code>.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>EncryptedFavoritesSerializer.kt</code>. Προστέθηκε φρουρός ακύρωσης πάνω από το γενικό catch. Το γενικό <code>catch (e: Exception)</code> <strong>παρέμεινε</strong> ως δίχτυ ασφαλείας: το να στενέψει σε συγκεκριμένους τύπους θα άλλαζε τη συμπεριφορά σε σφάλματα που δεν μπορούν να επαληθευτούν χωρίς build.</div>
 </div>
 
 <!-- ══════════════════════ LOW ══════════════════════ -->
@@ -426,7 +507,7 @@ val refreshed = current.map { favorite -&gt;
 <p class="lead">Ποιότητα, συνέπεια και μικρά edge cases. Καμία επείγουσα διόρθωση.</p>
 
 <div class="finding low">
-<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-1</span> Το <code>ObserveEffects</code> κρατάει stale lambda</h3>
+<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-1</span> <span class="badge b-fixed">Διορθώθηκε</span> Το <code>ObserveEffects</code> κρατάει stale lambda</h3>
 <p class="loc">ui/EffectCollector.kt:15-21</p>
 <p>Το <code>onEffect</code> δεν είναι key του <code>LaunchedEffect</code> και δεν τυλίγεται σε <code>rememberUpdatedState</code>. Αν το lambda που περνιέται αλλάξει (π.χ. επειδή αλλάζει το <code>navController</code> ή κάποιο captured callback), η συλλογή θα συνεχίσει να καλεί το <strong>παλιό</strong>. Πρακτικά σπάνιο εδώ, αλλά είναι το καθιερωμένο pattern:</p>
 <pre><code>@Composable
@@ -439,31 +520,35 @@ fun &lt;T&gt; ObserveEffects(effects: Flow&lt;T&gt;, onEffect: (T) -&gt; Unit) {
         }
     }
 }</code></pre>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>EffectCollector.kt</code>. <code>rememberUpdatedState</code> γύρω από το <code>onEffect</code>.</div>
 </div>
 
 <div class="finding low">
-<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-2</span> Δύο ίδια διαδοχικά μηνύματα: το δεύτερο χάνεται</h3>
+<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-2</span> <span class="badge b-fixed">Διορθώθηκε</span> Δύο ίδια διαδοχικά μηνύματα: το δεύτερο χάνεται</h3>
 <p class="loc">ui/components/SnackbarMessage.kt:24-30</p>
 <p>Το <code>LaunchedEffect</code> έχει key το ίδιο το κείμενο. Το <code>onShown()</code> καλείται μόνο <em>αφού</em> κλείσει το snackbar (το <code>showSnackbar</code> είναι suspend μέχρι το dismiss, ~4 δευτερόλεπτα). Αν στο διάστημα αυτό φτάσει δεύτερο μήνυμα με πανομοιότυπο κείμενο, το key δεν αλλάζει, το effect δεν ξανατρέχει, και το <code>onShown()</code> που ακολουθεί το μηδενίζει — το δεύτερο γεγονός εξαφανίζεται. Αυτό είναι το κλασικό πρόβλημα «one-off event μοντελοποιημένο ως state». Η καθιερωμένη λύση είναι να φέρει το γεγονός δική του ταυτότητα:</p>
 <pre><code>data class SnackbarEvent(val text: UiText, val id: Long = System.nanoTime())
 <span class="cmt">// ...και το LaunchedEffect να κλειδώνει στο event.id αντί για το κείμενο.</span></code></pre>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>SnackbarMessage.kt + 4 οθόνες</code>. Νέα <code>SnackbarRequest</code> με μοναδικό id και <code>SnackbarController</code> που τα εκδίδει· το <code>LaunchedEffect</code> κλειδώνει στο id αντί για το κείμενο.</div>
 </div>
 
 <div class="finding low">
-<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-3</span> Ασυγχρόνιστη δημιουργία κλειδιού στο Keystore</h3>
+<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-3</span> <span class="badge b-fixed">Διορθώθηκε</span> Ασυγχρόνιστη δημιουργία κλειδιού στο Keystore</h3>
 <p class="loc">data/local/crypto/KeystoreCryptoManager.kt:64-65</p>
 <p>Το <code>secretKey()</code> κάνει «αν δεν υπάρχει, δημιούργησε» χωρίς κλείδωμα. Δύο ταυτόχρονοι καλούντες στην πρώτη χρήση μπορούν να δημιουργήσουν διαδοχικά δύο κλειδιά με το ίδιο alias· το δεύτερο αντικαθιστά το πρώτο, και ό,τι κρυπτογραφήθηκε με το πρώτο γίνεται μη αναγνώσιμο. Το DataStore σειριοποιεί σήμερα τα writes, οπότε το παράθυρο είναι πολύ στενό, αλλά ένα <code>@Synchronized</code> στο <code>secretKey()</code> το κλείνει με μηδενικό κόστος. Παράλληλα, το <code>secretKey()</code> κάνει lookup στο keystore σε <em>κάθε</em> encrypt/decrypt — μια <code>by lazy</code> τιμή θα ήταν αισθητά φθηνότερη.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>KeystoreCryptoManager.kt</code>. <code>@Synchronized</code> στο <code>secretKey()</code> και στο <code>recreateKey()</code>, με cache που το <code>recreateKey()</code> ακυρώνει.</div>
 </div>
 
 <div class="finding low">
-<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-4</span> Ασυνέπειες στη δομή του MVI</h3>
+<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-4</span> <span class="badge b-fixed">Διορθώθηκε</span> Ασυνέπειες στη δομή του MVI</h3>
 <p class="loc">ui/popular/PopularReducer.kt · ui/details/DetailsContract.kt:39 · ui/favorites/FavoritesContract.kt:37 · ui/profile/ProfileContract.kt:21</p>
 <p>Το Popular έχει τον reducer σε <strong>ξεχωριστό αρχείο</strong> (<code>PopularReducer</code>), ενώ τα άλλα τρία features τον έχουν ως <code>fun reduce()</code> <strong>μέσα στο Contract</strong>. Και οι δύο επιλογές είναι θεμιτές· η ανάμειξή τους όμως κάνει τον αναγνώστη να ψάχνει. Δεδομένου ότι το README προβάλλει τον pure reducer ως το κεντρικό επιχείρημα υπέρ του MVI, η συνεπής μορφή (ξεχωριστό <code>*Reducer</code> object παντού) θα ενίσχυε ακριβώς αυτό το επιχείρημα — και θα έδινε και στα τρία υπόλοιπα features το ίδιο εύκολο σημείο εισόδου για tests.</p>
 <p>Στο ίδιο πνεύμα: το <code>PopularContract.State.canLoadMore</code> ορίζεται στο state αλλά το ViewModel δεν το χρησιμοποιεί — ξαναγράφει τον έλεγχο με το χέρι (με διαφορετικούς όρους, σκόπιμα, για το retry). Δύο πηγές αλήθειας για την ίδια ερώτηση· αξίζει είτε ένα δεύτερο named property (<code>canRetryAppend</code>) είτε ένα σχόλιο ακριβώς πάνω από το <code>canLoadMore</code> ότι αφορά μόνο το auto-scroll.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>3 νέα αρχεία Reducer</code>. Οι reducers των Details/Favorites/Profile βγήκαν σε δικά τους αρχεία. Το <code>canLoadMore</code> τεκμηριώθηκε ως trigger μόνο του auto-scroll.</div>
 </div>
 
 <div class="finding low" id="L-5">
-<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-5</span> Το <code>domain/</code> εξαρτάται από το Compose runtime</h3>
+<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-5</span> <span class="badge b-fixed">Διορθώθηκε</span> Το <code>domain/</code> εξαρτάται από το Compose runtime</h3>
 <p class="loc">domain/model/Movie.kt:3 · domain/model/MovieDetails.kt:3 · domain/model/MoviePage.kt:3</p>
 <p>Και τα τρία domain models εισάγουν <code>androidx.compose.runtime.Immutable</code>. Η απόφαση είναι <strong>τεκμηριωμένη και συνειδητή</strong> — το σχόλιο στο <code>Movie.kt</code> εξηγεί το trade-off σωστά. Παραμένει όμως η μοναδική παραβίαση του κανόνα που διατυπώνει το ίδιο το README («το domain δεν γνωρίζει τίποτα για Retrofit, Compose ή Android»), και αν αύριο το domain γίνει KMP module, το <code>androidx</code> δεν θα μπορεί να το ακολουθήσει.</p>
 <p>Ο Compose compiler δίνει ακριβώς γι' αυτό μια λύση που δεν αγγίζει τον κώδικα — ένα αρχείο με τα types που να θεωρούνται stable:</p>
@@ -476,37 +561,39 @@ composeCompiler {
 com.nikpapajohn.moviedb.domain.model.*
 kotlin.collections.List</code></pre>
 <p>Έτσι το <code>domain/</code> μένει pure Kotlin και τα Composables παραμένουν skippable.</p>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>compose_stability.conf + 3 domain models</code>. Το <code>@Immutable</code> έφυγε από το <code>domain/</code> και η υπόσχεση σταθερότητας μεταφέρθηκε σε αρχείο ρύθμισης. <strong>Θέλει επαλήθευση</strong> στα <code>build/compose_reports/*-classes.txt</code> μετά από build.</div>
 </div>
 
 <div class="finding low">
-<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-6</span> Νεκρός κώδικας και αχρησιμοποίητοι πόροι</h3>
+<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-6</span> <span class="badge b-fixed">Διορθώθηκε</span> Νεκρός κώδικας και αχρησιμοποίητοι πόροι</h3>
 <p class="loc">di/Qualifiers.kt · res/values/strings.xml · domain/model/MovieDetails.kt:18</p>
 <ul>
   <li><code>@TmdbLanguage</code> — ο qualifier δηλώνεται αλλά δεν χρησιμοποιείται πουθενά· το <code>LanguageInterceptor</code> παίρνει lambda με default τιμή. Ολόκληρο το <code>Qualifiers.kt</code> μπορεί να διαγραφεί. (Το σχόλιό του λέει επίσης «derived once from the device locale», που είναι το αντίθετο από ό,τι κάνει ο interceptor.)</li>
   <li><code>R.string.profile_storage_body</code>, <code>R.string.profile_about_title</code>, <code>R.string.action_close_menu</code> — ορισμένα σε δύο γλώσσες, δεν αναφέρονται πουθενά. Ιδιαίτερα το <code>profile_storage_body</code> περιγράφει την κρυπτογράφηση και το Profile screen υπόσχεται ακριβώς αυτή την πληροφορία στο README («How favorites are stored») αλλά δεν τη δείχνει — μάλλον ξεχάστηκε παρά περισσεύει.</li>
   <li><code>MovieDetails.backdropPath</code> — γίνεται parse, map και μεταφέρεται σε όλο το stack, αλλά δεν εμφανίζεται ποτέ.</li>
 </ul>
+<div class="fixnote"><span class="h">Διορθώθηκε</span> — <code>Qualifiers.kt, strings, MovieDetails.kt</code>. Διαγράφηκαν ο qualifier, δύο αχρησιμοποίητα strings και το <code>backdropPath</code>. Το <code>profile_storage_body</code> εμφανίστηκε αντί να διαγραφεί.</div>
 </div>
 
 <div class="finding low">
-<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-7</span> Μικρότερες παρατηρήσεις</h3>
+<h3><span class="badge b-low">Χαμηλή</span> <span class="id">L-7</span> <span class="badge b-partial">Μερικώς</span> Μικρότερες παρατηρήσεις</h3>
 <table>
-<thead><tr><th>#</th><th>Σημείο</th><th>Παρατήρηση</th></tr></thead>
+<thead><tr><th>#</th><th>Σημείο</th><th>Παρατήρηση</th><th>Κατάσταση</th></tr></thead>
 <tbody>
-<tr><td>a</td><td><code>ui/MovieDbApp.kt:144</code></td><td>Το <code>NavHost</code> εφαρμόζει μόνο <code>calculateBottomPadding()</code>. Σε landscape με πλαϊνή navigation bar, τα οριζόντια insets αγνοούνται σε αυτό το επίπεδο — καλύπτονται ανά οθόνη μέσω <code>contentWindowInsets</code>, αλλά η ασυμμετρία είναι εύκολο να σπάσει σε νέα οθόνη που θα ξεχάσει να το κάνει.</td></tr>
-<tr><td>b</td><td><code>di/StorageModule.kt:28</code></td><td>Το <code>KeystoreCryptoManager</code> έχει <code>@Inject constructor</code> και <code>@Singleton</code>, αλλά κατασκευάζεται χειροκίνητα σε <code>@Provides</code>. Ένα <code>@Binds</code> (όπως ήδη γίνεται στο <code>RepositoryModule</code>) είναι φθηνότερο σε generated code και πιο σαφές ως πρόθεση.</td></tr>
-<tr><td>c</td><td><code>EncryptedFavoritesSerializer.kt:16</code></td><td>Φτιάχνει δικό του <code>Json</code> instance ενώ το <code>NetworkModule</code> παρέχει ήδη ένα <code>@Singleton Json</code>. Δύο διαφορετικές ρυθμίσεις serialization στην ίδια εφαρμογή· αν είναι σκόπιμο, αξίζει σχόλιο.</td></tr>
-<tr><td>d</td><td><code>res/values/strings.xml</code></td><td>Τα <code>profile_favorites_count</code> («%1$d saved»), <code>details_votes</code> και <code>details_runtime_minutes</code> είναι απλά strings. Για σωστό πληθυντικό σε Ελληνικά και Αγγλικά θέλουν <code>&lt;plurals&gt;</code> με <code>quantityString</code> — αλλιώς «1 saved» / «1 αποθηκευμένες».</td></tr>
-<tr><td>e</td><td><code>ui/theme/Theme.kt</code></td><td>Τα <code>lightColorScheme</code>/<code>darkColorScheme</code> δεν ορίζουν <code>error</code>, <code>onError</code>, <code>errorContainer</code>, <code>tertiary</code>. Ό,τι τα χρησιμοποιεί (π.χ. ένα <code>TextField</code> σε κατάσταση σφάλματος) πέφτει στο default Material κόκκινο/μωβ, εκτός παλέτας.</td></tr>
-<tr><td>f</td><td><code>data/mapper/MovieMappers.kt:21</code></td><td>Το <code>MovieDto.toDomain</code> έχει fallback <code>title ?: originalTitle</code>, το <code>MovieDetailsDto.toDomain</code> δεν έχει (<code>title.orEmpty()</code>). Ταινία χωρίς localized τίτλο εμφανίζεται κανονικά στη λίστα και με κενό τίτλο στις λεπτομέρειες. Το <code>MovieDetailsDto</code> δεν έχει καν πεδίο <code>original_title</code>, ενώ το TMDB το επιστρέφει.</td></tr>
-<tr><td>g</td><td><code>FavoritesRepositoryImpl.kt:31</code></td><td>Το <code>favorites()</code> δεν έχει <code>distinctUntilChanged()</code>, ενώ τα <code>favoriteIds()</code> και <code>isFavorite()</code> έχουν. Κάθε εγγραφή στο DataStore προκαλεί νέα emission ακόμη κι αν η λίστα είναι ισοδύναμη.</td></tr>
-<tr><td>h</td><td><code>ui/components/RatingRow.kt:37</code></td><td>Το <code>clearAndSetSemantics</code> αντικαθιστά τα πάντα με «Rating X out of 10», οπότε το πλήθος ψήφων δεν φτάνει ποτέ στο TalkBack. Σκόπιμη απλοποίηση, αλλά χάνεται πληροφορία που είναι ορατή στους βλέποντες χρήστες.</td></tr>
-<tr><td>i</td><td><code>di/NetworkModule.kt:40-47</code></td><td>Ορίζονται <code>connectTimeout</code>/<code>readTimeout</code> αλλά όχι <code>callTimeout</code>, που είναι το μόνο που βάζει ταβάνι στη συνολική διάρκεια. Δεν ορίζεται επίσης HTTP cache — για ένα <code>movie/popular</code> που αλλάζει μια φορά τη μέρα, ένα μικρό <code>Cache</code> θα έδινε άμεση επανεμφάνιση χωρίς δίκτυο.</td></tr>
-<tr><td>j</td><td><code>ui/navigation/Destinations.kt:38</code></td><td>Το <code>labelRes: Int</code> χωρίς <code>@StringRes</code>. Το annotation δίνει έλεγχο από το lint σε compile time και χρησιμοποιείται ήδη σωστά στο <code>UiText.Res</code>.</td></tr>
-<tr><td>k</td><td><code>PopularScreen.kt:246-265</code></td><td>Το κείμενο αναζήτησης ζει στο ViewModel και επιστρέφει στο <code>OutlinedTextField</code> μέσω <code>StateFlow</code>. Σε γρήγορη πληκτρολόγηση αυτή η διαδρομή μπορεί να προκαλέσει αναπήδηση του cursor. Η σύσταση της Google είναι το κείμενο να μένει τοπικό (<code>TextFieldState</code> ή τοπικό <code>remember</code>) και στο ViewModel να πηγαίνει μόνο το debounced query.</td></tr>
-<tr><td>l</td><td><code>build.gradle.kts</code></td><td>Δεν υπάρχει ktlint/detekt ούτε CI workflow — το README το αναγνωρίζει ως επόμενο βήμα. Ένα <code>detekt</code> θα εντόπιζε μόνο του τα <code>catch (e: Exception)</code> των H-1/M-7 (κανόνας <code>TooGenericExceptionCaught</code>) και το <code>SwallowedException</code>.</td></tr>
-<tr><td>m</td><td><code>core/SafeCall.kt:13</code></td><td>Στο <code>catch (e: IOException)</code> το <code>e</code> απορρίπτεται εντελώς. Το <code>AppError.Network</code> δεν κουβαλά cause, οπότε η αρχική αιτία (timeout vs DNS vs TLS) χάνεται πριν φτάσει σε οποιοδήποτε logging.</td></tr>
-<tr><td>n</td><td><code>app/build.gradle.kts:24</code></td><td>Όταν δεν υπάρχει token, το <code>BuildConfig.TMDB_READ_ACCESS_TOKEN</code> γίνεται κενό string και το app χτίζεται κανονικά — τα 401 εξηγούνται σωστά στο UI. Ένα προειδοποιητικό μήνυμα στο build (<code>logger.warn</code>) θα γλίτωνε τον επόμενο developer από το να το ανακαλύψει στο runtime.</td></tr>
+<tr><td>a</td><td><code>ui/MovieDbApp.kt:144</code></td><td>Το <code>NavHost</code> εφαρμόζει μόνο <code>calculateBottomPadding()</code>. Σε landscape με πλαϊνή navigation bar, τα οριζόντια insets αγνοούνται σε αυτό το επίπεδο — καλύπτονται ανά οθόνη μέσω <code>contentWindowInsets</code>, αλλά η ασυμμετρία είναι εύκολο να σπάσει σε νέα οθόνη που θα ξεχάσει να το κάνει.</td><td><span class="badge b-open">Δεν εφαρμόστηκε</span></td></tr>
+<tr><td>b</td><td><code>di/StorageModule.kt:28</code></td><td>Το <code>KeystoreCryptoManager</code> έχει <code>@Inject constructor</code> και <code>@Singleton</code>, αλλά κατασκευάζεται χειροκίνητα σε <code>@Provides</code>. Ένα <code>@Binds</code> (όπως ήδη γίνεται στο <code>RepositoryModule</code>) είναι φθηνότερο σε generated code και πιο σαφές ως πρόθεση.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>c</td><td><code>EncryptedFavoritesSerializer.kt:16</code></td><td>Φτιάχνει δικό του <code>Json</code> instance ενώ το <code>NetworkModule</code> παρέχει ήδη ένα <code>@Singleton Json</code>. Δύο διαφορετικές ρυθμίσεις serialization στην ίδια εφαρμογή· αν είναι σκόπιμο, αξίζει σχόλιο.</td><td><span class="badge b-fixed">Σχολιάστηκε</span></td></tr>
+<tr><td>d</td><td><code>res/values/strings.xml</code></td><td>Τα <code>profile_favorites_count</code> («%1$d saved»), <code>details_votes</code> και <code>details_runtime_minutes</code> είναι απλά strings. Για σωστό πληθυντικό σε Ελληνικά και Αγγλικά θέλουν <code>&lt;plurals&gt;</code> με <code>quantityString</code> — αλλιώς «1 saved» / «1 αποθηκευμένες».</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>e</td><td><code>ui/theme/Theme.kt</code></td><td>Τα <code>lightColorScheme</code>/<code>darkColorScheme</code> δεν ορίζουν <code>error</code>, <code>onError</code>, <code>errorContainer</code>, <code>tertiary</code>. Ό,τι τα χρησιμοποιεί (π.χ. ένα <code>TextField</code> σε κατάσταση σφάλματος) πέφτει στο default Material κόκκινο/μωβ, εκτός παλέτας.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>f</td><td><code>data/mapper/MovieMappers.kt:21</code></td><td>Το <code>MovieDto.toDomain</code> έχει fallback <code>title ?: originalTitle</code>, το <code>MovieDetailsDto.toDomain</code> δεν έχει (<code>title.orEmpty()</code>). Ταινία χωρίς localized τίτλο εμφανίζεται κανονικά στη λίστα και με κενό τίτλο στις λεπτομέρειες. Το <code>MovieDetailsDto</code> δεν έχει καν πεδίο <code>original_title</code>, ενώ το TMDB το επιστρέφει.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>g</td><td><code>FavoritesRepositoryImpl.kt:31</code></td><td>Το <code>favorites()</code> δεν έχει <code>distinctUntilChanged()</code>, ενώ τα <code>favoriteIds()</code> και <code>isFavorite()</code> έχουν. Κάθε εγγραφή στο DataStore προκαλεί νέα emission ακόμη κι αν η λίστα είναι ισοδύναμη.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>h</td><td><code>ui/components/RatingRow.kt:37</code></td><td>Το <code>clearAndSetSemantics</code> αντικαθιστά τα πάντα με «Rating X out of 10», οπότε το πλήθος ψήφων δεν φτάνει ποτέ στο TalkBack. Σκόπιμη απλοποίηση, αλλά χάνεται πληροφορία που είναι ορατή στους βλέποντες χρήστες.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>i</td><td><code>di/NetworkModule.kt:40-47</code></td><td>Ορίζονται <code>connectTimeout</code>/<code>readTimeout</code> αλλά όχι <code>callTimeout</code>, που είναι το μόνο που βάζει ταβάνι στη συνολική διάρκεια. Δεν ορίζεται επίσης HTTP cache — για ένα <code>movie/popular</code> που αλλάζει μια φορά τη μέρα, ένα μικρό <code>Cache</code> θα έδινε άμεση επανεμφάνιση χωρίς δίκτυο.</td><td><span class="badge b-partial">Μερικώς</span></td></tr>
+<tr><td>j</td><td><code>ui/navigation/Destinations.kt:38</code></td><td>Το <code>labelRes: Int</code> χωρίς <code>@StringRes</code>. Το annotation δίνει έλεγχο από το lint σε compile time και χρησιμοποιείται ήδη σωστά στο <code>UiText.Res</code>.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>k</td><td><code>PopularScreen.kt:246-265</code></td><td>Το κείμενο αναζήτησης ζει στο ViewModel και επιστρέφει στο <code>OutlinedTextField</code> μέσω <code>StateFlow</code>. Σε γρήγορη πληκτρολόγηση αυτή η διαδρομή μπορεί να προκαλέσει αναπήδηση του cursor. Η σύσταση της Google είναι το κείμενο να μένει τοπικό (<code>TextFieldState</code> ή τοπικό <code>remember</code>) και στο ViewModel να πηγαίνει μόνο το debounced query.</td><td><span class="badge b-open">Δεν εφαρμόστηκε</span></td></tr>
+<tr><td>l</td><td><code>build.gradle.kts</code></td><td>Δεν υπάρχει ktlint/detekt ούτε CI workflow — το README το αναγνωρίζει ως επόμενο βήμα. Ένα <code>detekt</code> θα εντόπιζε μόνο του τα <code>catch (e: Exception)</code> των H-1/M-7 (κανόνας <code>TooGenericExceptionCaught</code>) και το <code>SwallowedException</code>.</td><td><span class="badge b-open">Δεν εφαρμόστηκε</span></td></tr>
+<tr><td>m</td><td><code>core/SafeCall.kt:13</code></td><td>Στο <code>catch (e: IOException)</code> το <code>e</code> απορρίπτεται εντελώς. Το <code>AppError.Network</code> δεν κουβαλά cause, οπότε η αρχική αιτία (timeout vs DNS vs TLS) χάνεται πριν φτάσει σε οποιοδήποτε logging.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
+<tr><td>n</td><td><code>app/build.gradle.kts:24</code></td><td>Όταν δεν υπάρχει token, το <code>BuildConfig.TMDB_READ_ACCESS_TOKEN</code> γίνεται κενό string και το app χτίζεται κανονικά — τα 401 εξηγούνται σωστά στο UI. Ένα προειδοποιητικό μήνυμα στο build (<code>logger.warn</code>) θα γλίτωνε τον επόμενο developer από το να το ανακαλύψει στο runtime.</td><td><span class="badge b-fixed">Διορθώθηκε</span></td></tr>
 </tbody>
 </table>
 </div>
@@ -547,24 +634,32 @@ kotlin.collections.List</code></pre>
 <!-- ══════════════════════ PLAN ══════════════════════ -->
 <h2 id="plan"><span class="num">6.</span> Προτεινόμενη σειρά διόρθωσης</h2>
 <table>
-<thead><tr><th>Σειρά</th><th>Ενέργεια</th><th>Εύρημα</th><th>Κόστος</th></tr></thead>
+<thead><tr><th>Σειρά</th><th>Ενέργεια</th><th>Εύρημα</th><th>Κατάσταση</th></tr></thead>
 <tbody>
-<tr><td>1</td><td><code>throw e</code> για <code>CancellationException</code> στα τρία γενικά <code>catch</code> (<code>safeApiCall</code>, serializer, crypto)</td><td><span class="badge b-high">H-1</span> <span class="badge b-med">M-7</span></td><td>~10 γραμμές</td></tr>
-<tr><td>2</td><td><code>runCatching</code> ή <code>Result&lt;Boolean&gt;</code> στα 4 write paths των ViewModels</td><td><span class="badge b-high">H-2</span> <span class="badge b-med">M-6</span></td><td>~30 γραμμές</td></tr>
-<tr><td>3</td><td>Μεταφορά της απόφασης του toggle μέσα στο <code>updateData</code></td><td><span class="badge b-high">H-3</span></td><td>~8 γραμμές</td></tr>
-<tr><td>4</td><td><code>rememberSaveable</code> για το locale guard + κλείδωμα του <code>GenreCache</code> στη γλώσσα</td><td><span class="badge b-high">H-4</span> <span class="badge b-med">M-1</span></td><td>~25 γραμμές</td></tr>
-<tr><td>5</td><td>Tests για <code>FavoritesRepositoryImpl</code> και για την ακύρωση στο <code>safeApiCall</code> — κλειδώνουν τα 1-4</td><td><a href="#tests">§4</a></td><td>~120 γραμμές</td></tr>
-<tr><td>6</td><td><code>@Immutable</code> στο <code>UiText</code> και στα δύο contracts· επαλήθευση στα <code>compose_reports</code></td><td><span class="badge b-med">M-2</span></td><td>~5 γραμμές</td></tr>
-<tr><td>7</td><td><code>AsyncImage</code> αντί για <code>SubcomposeAsyncImage</code></td><td><span class="badge b-med">M-3</span></td><td>~10 γραμμές</td></tr>
-<tr><td>8</td><td>Σύγχρονος φρουρός pagination + <code>snapshotFlow</code> trigger· <code>Semaphore</code> στο refresh</td><td><span class="badge b-med">M-4</span> <span class="badge b-med">M-5</span></td><td>~40 γραμμές</td></tr>
-<tr><td>9</td><td>detekt + ktlint σε CI — πιάνουν αυτόματα την κατηγορία σφαλμάτων του βήματος 1</td><td><span class="badge b-low">L-7l</span></td><td>ρύθμιση</td></tr>
-<tr><td>10</td><td>Καθαρισμός νεκρού κώδικα, <code>plurals</code>, χρώματα <code>error</code> στο theme</td><td><span class="badge b-low">L-6</span> <span class="badge b-low">L-7</span></td><td>μικρό</td></tr>
+<tr><td>1</td><td><code>throw e</code> για <code>CancellationException</code> στα τρία γενικά <code>catch</code> (<code>safeApiCall</code>, serializer, crypto)</td><td><span class="badge b-high">H-1</span> <span class="badge b-med">M-7</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
+<tr><td>2</td><td><code>runCatching</code> ή <code>Result&lt;Boolean&gt;</code> στα 4 write paths των ViewModels</td><td><span class="badge b-high">H-2</span> <span class="badge b-med">M-6</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
+<tr><td>3</td><td>Μεταφορά της απόφασης του toggle μέσα στο <code>updateData</code></td><td><span class="badge b-high">H-3</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
+<tr><td>4</td><td><code>rememberSaveable</code> για το locale guard + κλείδωμα του <code>GenreCache</code> στη γλώσσα</td><td><span class="badge b-high">H-4</span> <span class="badge b-med">M-1</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
+<tr><td>5</td><td>Tests για <code>FavoritesRepositoryImpl</code> και για την ακύρωση στο <code>safeApiCall</code> — κλειδώνουν τα 1-4</td><td><a href="#tests">§4</a></td><td><span class="badge b-open">Δεν έγινε</span></td></tr>
+<tr><td>6</td><td><code>@Immutable</code> στο <code>UiText</code> και στα δύο contracts· επαλήθευση στα <code>compose_reports</code></td><td><span class="badge b-med">M-2</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
+<tr><td>7</td><td><code>AsyncImage</code> αντί για <code>SubcomposeAsyncImage</code></td><td><span class="badge b-med">M-3</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
+<tr><td>8</td><td>Σύγχρονος φρουρός pagination + <code>snapshotFlow</code> trigger· <code>Semaphore</code> στο refresh</td><td><span class="badge b-med">M-4</span> <span class="badge b-med">M-5</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
+<tr><td>9</td><td>detekt + ktlint σε CI — πιάνουν αυτόματα την κατηγορία σφαλμάτων του βήματος 1</td><td><span class="badge b-low">L-7l</span></td><td><span class="badge b-open">Δεν έγινε</span></td></tr>
+<tr><td>10</td><td>Καθαρισμός νεκρού κώδικα, <code>plurals</code>, χρώματα <code>error</code> στο theme</td><td><span class="badge b-low">L-6</span> <span class="badge b-low">L-7</span></td><td><span class="badge b-fixed">Έγινε</span></td></tr>
 </tbody>
 </table>
 
-<p class="note">Τα βήματα 1-4 είναι περίπου <strong>70 γραμμές συνολικά</strong> και καλύπτουν και τα τέσσερα ευρήματα υψηλής προτεραιότητας. Είναι η μόνη ομάδα που θα πρότεινα να γίνει πριν από οποιαδήποτε νέα λειτουργικότητα.</p>
+<p class="note"><strong>Τα βήματα 5 και 9 δεν έγιναν, και είναι τα δύο που κρατούν όλα τα υπόλοιπα
+ειλικρινή.</strong> Το βήμα 5 (tests για <code>FavoritesRepositoryImpl</code> και για την ακύρωση στο
+<code>safeApiCall</code>) είναι αυτό που θα κλείδωνε τις διορθώσεις 1-4 ώστε να μην ξαναγυρίσουν· το
+βήμα 9 (detekt/ktlint) είναι αυτό που θα έπιανε αυτόματα την κατηγορία σφαλμάτων του H-1 στο μέλλον.
+Χωρίς αυτά, 27 ευρήματα είναι διορθωμένα αλλά <em>κανένα δεν είναι προστατευμένο</em> — και τίποτα δεν
+έχει μεταγλωττιστεί. Η πρώτη ενέργεια πάνω σε αυτά τα patches είναι ένα
+<code>./gradlew assembleDebug testDebugUnitTest</code>.</p>
 
 <footer>
+  <p><strong>Αναθεώρηση 2</strong> — προστέθηκε η κατάσταση διορθώσεων ανά εύρημα. Τα ευρήματα και η
+  ανάλυσή τους είναι όπως στην πρώτη έκδοση· διορθώθηκε η αρίθμηση των χαμηλής προτεραιότητας (20, όχι 14).</p>
   <p>Code review του <strong>MovieDB</strong> — στατική ανάλυση 69 αρχείων (~5.300 γραμμές Kotlin) χωρίς εκτέλεση του build.
   Τα ευρήματα προέκυψαν από ανάγνωση του κώδικα και επαληθεύτηκαν διασταυρώνοντας τον κώδικα με το <code>AndroidManifest.xml</code>, τους πόρους και τα υπάρχοντα tests.
   Οι προτεινόμενες διορθώσεις δεν έχουν μεταγλωττιστεί.</p>

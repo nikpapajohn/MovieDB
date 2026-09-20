@@ -68,6 +68,8 @@ import com.nikpapajohn.moviedb.ui.components.LoadingState
 import com.nikpapajohn.moviedb.ui.components.PosterImage
 import com.nikpapajohn.moviedb.ui.components.RatingRow
 import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
+import com.nikpapajohn.moviedb.ui.components.SnackbarRequest
+import com.nikpapajohn.moviedb.ui.components.rememberSnackbarController
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Effect
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Intent
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.State
@@ -80,13 +82,13 @@ fun DetailsRoute(
     viewModel: DetailsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var message by remember { mutableStateOf<UiText?>(null) }
+    val snackbar = rememberSnackbarController()
     val context = LocalContext.current
 
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {
             Effect.NavigateBack -> onNavigateBack()
-            is Effect.ShowMessage -> message = effect.text
+            is Effect.ShowMessage -> snackbar.show(effect.text)
             is Effect.ShareText -> context.shareText(effect.text)
             is Effect.OpenUrl -> context.openUrl(effect.url)
         }
@@ -94,8 +96,8 @@ fun DetailsRoute(
 
     DetailsScreen(
         state = state,
-        message = message,
-        onMessageShown = { message = null },
+        message = snackbar.current,
+        onMessageShown = snackbar::consume,
         onIntent = viewModel::onIntent,
     )
 }
@@ -104,7 +106,7 @@ fun DetailsRoute(
 @Composable
 fun DetailsScreen(
     state: State,
-    message: UiText?,
+    message: SnackbarRequest?,
     onMessageShown: () -> Unit,
     onIntent: (Intent) -> Unit,
 ) {

@@ -25,9 +25,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -36,10 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nikpapajohn.moviedb.R
-import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.ui.ObserveEffects
 import com.nikpapajohn.moviedb.ui.components.AppSnackbarHost
 import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
+import com.nikpapajohn.moviedb.ui.components.SnackbarRequest
+import com.nikpapajohn.moviedb.ui.components.rememberSnackbarController
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.Effect
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.Intent
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.State
@@ -51,18 +50,18 @@ fun ProfileRoute(
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var message by remember { mutableStateOf<UiText?>(null) }
+    val snackbar = rememberSnackbarController()
 
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {
-            is Effect.ShowMessage -> message = effect.text
+            is Effect.ShowMessage -> snackbar.show(effect.text)
         }
     }
 
     ProfileScreen(
         state = state,
-        message = message,
-        onMessageShown = { message = null },
+        message = snackbar.current,
+        onMessageShown = snackbar::consume,
         onMenuClick = onMenuClick,
         onIntent = viewModel::onIntent,
     )
@@ -72,7 +71,7 @@ fun ProfileRoute(
 @Composable
 fun ProfileScreen(
     state: State,
-    message: UiText?,
+    message: SnackbarRequest?,
     onMessageShown: () -> Unit,
     onMenuClick: () -> Unit,
     onIntent: (Intent) -> Unit,

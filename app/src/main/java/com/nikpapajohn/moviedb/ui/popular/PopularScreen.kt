@@ -75,6 +75,8 @@ import com.nikpapajohn.moviedb.ui.components.ErrorState
 import com.nikpapajohn.moviedb.ui.components.LoadingState
 import com.nikpapajohn.moviedb.ui.components.MovieCard
 import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
+import com.nikpapajohn.moviedb.ui.components.SnackbarRequest
+import com.nikpapajohn.moviedb.ui.components.rememberSnackbarController
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.Effect
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.Intent
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.State
@@ -91,7 +93,7 @@ fun PopularRoute(
     viewModel: PopularViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var message by remember { mutableStateOf<UiText?>(null) }
+    val snackbar = rememberSnackbarController()
 
     // A system language change recreates the Activity, but the ViewModel (and its
     // already-loaded, now stale-language page) survives that recreation — its own init
@@ -114,14 +116,14 @@ fun PopularRoute(
         when (effect) {
             is Effect.NavigateToDetails -> onNavigateToDetails(effect.movieId)
             Effect.NavigateToFavorites -> onNavigateToFavorites()
-            is Effect.ShowMessage -> message = effect.text
+            is Effect.ShowMessage -> snackbar.show(effect.text)
         }
     }
 
     PopularScreen(
         state = state,
-        message = message,
-        onMessageShown = { message = null },
+        message = snackbar.current,
+        onMessageShown = snackbar::consume,
         onMenuClick = onMenuClick,
         onAboutClick = onNavigateToAbout,
         onIntent = viewModel::onIntent,
@@ -132,7 +134,7 @@ fun PopularRoute(
 @Composable
 fun PopularScreen(
     state: State,
-    message: UiText?,
+    message: SnackbarRequest?,
     onMessageShown: () -> Unit,
     onMenuClick: () -> Unit,
     onAboutClick: () -> Unit,
