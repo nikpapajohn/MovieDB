@@ -18,4 +18,6 @@ sealed interface AppError {
     data class Unknown(val cause: Throwable? = null) : AppError
 }
 
-class AppErrorException(val error: AppError) : Exception(error.toString())
+/** [cause] is kept so the original failure (timeout vs DNS vs TLS) survives for logging. */
+class AppErrorException(val error: AppError, cause: Throwable? = null) :
+    Exception(error.toString(), cause)

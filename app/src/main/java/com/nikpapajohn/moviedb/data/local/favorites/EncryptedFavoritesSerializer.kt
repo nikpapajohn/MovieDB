@@ -14,6 +14,9 @@ import kotlinx.serialization.json.Json
  */
 class EncryptedFavoritesSerializer(
     private val crypto: CryptoManager,
+    // Deliberately not the Json singleton from NetworkModule: that one is tuned for
+    // reading TMDB's payloads (explicitNulls, coerceInputValues), and this one defines an
+    // on-disk format. Sharing it would let a change made for the API rewrite stored files.
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : Serializer<FavoritesData> {
 

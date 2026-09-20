@@ -2,6 +2,8 @@ package com.nikpapajohn.moviedb.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -14,9 +16,12 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun <T> ObserveEffects(effects: Flow<T>, onEffect: (T) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    // The collector outlives any single composition, so it must not close over the lambda
+    // it was started with: rememberUpdatedState keeps it pointed at the current one.
+    val currentOnEffect by rememberUpdatedState(onEffect)
     LaunchedEffect(effects, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            effects.collect { effect -> onEffect(effect) }
+            effects.collect { effect -> currentOnEffect(effect) }
         }
     }
 }

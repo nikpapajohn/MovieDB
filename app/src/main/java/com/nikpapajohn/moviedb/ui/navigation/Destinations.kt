@@ -1,5 +1,6 @@
 package com.nikpapajohn.moviedb.ui.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
@@ -35,7 +36,7 @@ enum class BottomTab(
     val route: KClass<out Destination>,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    val labelRes: Int,
+    @StringRes val labelRes: Int,
 ) {
     HOME(
         destination = Destination.Home,

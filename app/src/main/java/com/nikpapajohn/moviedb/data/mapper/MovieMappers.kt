@@ -19,11 +19,12 @@ fun GenreDto.toDomain(): Genre = Genre(id = id, name = name)
 
 fun MovieDetailsDto.toDomain(): MovieDetails = MovieDetails(
     id = id,
-    title = title.orEmpty(),
+    // Same fallback as the list mapper: a title missing in the requested language would
+    // otherwise leave the details screen with a blank heading.
+    title = title?.takeIf { it.isNotBlank() } ?: originalTitle.orEmpty(),
     tagline = tagline?.takeIf { it.isNotBlank() },
     overview = overview.orEmpty(),
     posterPath = posterPath?.takeIf { it.isNotBlank() },
-    backdropPath = backdropPath?.takeIf { it.isNotBlank() },
     rating = voteAverage ?: 0.0,
     voteCount = voteCount ?: 0,
     releaseDate = releaseDate?.takeIf { it.isNotBlank() },

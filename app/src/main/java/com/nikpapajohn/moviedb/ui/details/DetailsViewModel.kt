@@ -93,7 +93,7 @@ class DetailsViewModel @Inject constructor(
     }
 
     private fun update(change: Change) {
-        _state.update { DetailsContract.reduce(it, change) }
+        _state.update { DetailsReducer.reduce(it, change) }
     }
 
     private fun emit(effect: Effect) {

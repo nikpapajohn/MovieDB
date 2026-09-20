@@ -35,7 +35,7 @@ class FavoritesRepositoryImpl @Inject constructor(
     override fun favorites(): Flow<List<Movie>> =
         dataStore.data.map { data ->
             data.movies.sortedByDescending { it.addedAtEpochMillis }.map { it.toDomain() }
-        }
+        }.distinctUntilChanged()
 
     override fun isFavorite(movieId: Int): Flow<Boolean> =
         dataStore.data.map { data -> data.movies.any { it.id == movieId } }.distinctUntilChanged()

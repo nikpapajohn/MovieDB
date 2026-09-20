@@ -19,8 +19,4 @@ object ProfileContract {
     sealed interface Change {
         data class CountUpdated(val count: Int) : Change
     }
-
-    fun reduce(state: State, change: Change): State = when (change) {
-        is Change.CountUpdated -> state.copy(favoritesCount = change.count)
-    }
 }

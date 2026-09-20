@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -124,7 +125,11 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        text = stringResource(R.string.profile_favorites_count, state.favoritesCount),
+                        text = pluralStringResource(
+                            R.plurals.profile_favorites_count,
+                            state.favoritesCount,
+                            state.favoritesCount,
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

@@ -22,7 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -318,7 +319,7 @@ private fun FactsCard(details: MovieDetails, modifier: Modifier = Modifier) {
                 .padding(16.dp),
         ) {
             Fact(
-                icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = null) },
+                icon = { Icon(Icons.Filled.CalendarToday, contentDescription = null) },
                 label = stringResource(R.string.details_release_date),
                 value = details.releaseYear ?: "—",
                 modifier = Modifier.weight(1f),
@@ -327,7 +328,7 @@ private fun FactsCard(details: MovieDetails, modifier: Modifier = Modifier) {
                 icon = { Icon(Icons.Filled.Schedule, contentDescription = null) },
                 label = stringResource(R.string.details_runtime),
                 value = details.runtimeMinutes
-                    ?.let { stringResource(R.string.details_runtime_minutes, it) }
+                    ?.let { pluralStringResource(R.plurals.details_runtime_minutes, it, it) }
                     ?: "—",
                 modifier = Modifier.weight(1f),
             )
@@ -383,7 +384,6 @@ private val previewDetails = MovieDetails(
     overview = "Two imprisoned men bond over a number of years, finding solace and " +
         "eventual redemption through acts of common decency.",
     posterPath = null,
-    backdropPath = null,
     rating = 8.7,
     voteCount = 26000,
     releaseDate = "1994-09-23",

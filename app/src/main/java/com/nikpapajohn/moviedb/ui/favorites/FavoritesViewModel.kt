@@ -73,7 +73,7 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun update(change: Change) {
-        _state.update { FavoritesContract.reduce(it, change) }
+        _state.update { FavoritesReducer.reduce(it, change) }
     }
 
     private fun emit(effect: Effect) {

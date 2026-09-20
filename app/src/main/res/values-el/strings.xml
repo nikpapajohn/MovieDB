@@ -14,8 +14,14 @@
     <string name="details_overview">Περίληψη</string>
     <string name="details_release_date">Κυκλοφορία</string>
     <string name="details_runtime">Διάρκεια</string>
-    <string name="details_runtime_minutes">%1$d λεπτά</string>
-    <string name="details_votes">(%1$s ψήφοι)</string>
+    <plurals name="details_runtime_minutes">
+        <item quantity="one">%1$d λεπτό</item>
+        <item quantity="other">%1$d λεπτά</item>
+    </plurals>
+    <plurals name="details_votes">
+        <item quantity="one">(%1$s ψήφος)</item>
+        <item quantity="other">(%1$s ψήφοι)</item>
+    </plurals>
     <string name="details_add_favorite">Στα αγαπημένα</string>
     <string name="details_added_favorite">Αγαπημένη</string>
     <string name="details_no_overview">Δεν υπάρχει διαθέσιμη περίληψη.</string>
@@ -26,15 +32,12 @@
 
     <string name="profile_title">Προφίλ</string>
     <string name="profile_storage_title">Αποθήκευση αγαπημένων</string>
-    <string name="profile_storage_body">Τα αγαπημένα κρυπτογραφούνται με AES-256/GCM. Το κλειδί δημιουργείται στο Android Keystore και δεν φεύγει ποτέ από τη συσκευή.</string>
     <string name="profile_clear_favorites">Διαγραφή όλων των αγαπημένων</string>
-    <string name="profile_about_title">Σχετικά</string>
     <string name="about_intro">Δες τις πιο δημοφιλείς ταινίες από το TMDB, άνοιξε όποια θες για λεπτομέρειες, και κράτα τα αγαπημένα σου στη συσκευή.</string>
     <string name="profile_version">Έκδοση %1$s</string>
     <string name="profile_attribution">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
 
     <string name="action_menu">Άνοιγμα μενού</string>
-    <string name="action_close_menu">Κλείσιμο μενού</string>
     <string name="action_search">Αναζήτηση</string>
     <string name="action_more">Περισσότερα</string>
     <string name="action_refresh">Ανανέωση</string>
@@ -50,11 +53,19 @@
     <string name="cd_remove_favorite">Αφαίρεση από τα αγαπημένα</string>
     <string name="cd_poster">Αφίσα της ταινίας %1$s</string>
     <string name="cd_rating">Βαθμολογία %1$s στα 10</string>
+    <string name="cd_rating_with_votes">Βαθμολογία %1$s στα 10, %2$s</string>
+    <plurals name="cd_votes">
+        <item quantity="one">%1$s ψήφος</item>
+        <item quantity="other">%1$s ψήφοι</item>
+    </plurals>
 
     <string name="message_added_to_favorites">Προστέθηκε στα αγαπημένα</string>
     <string name="message_removed_from_favorites">Αφαιρέθηκε από τα αγαπημένα</string>
     <string name="message_favorites_cleared">Τα αγαπημένα διαγράφηκαν</string>
-    <string name="profile_favorites_count">%1$d αποθηκευμένα</string>
+    <plurals name="profile_favorites_count">
+        <item quantity="one">%1$d αποθηκευμένο</item>
+        <item quantity="other">%1$d αποθηκευμένα</item>
+    </plurals>
 
     <string name="error_network">Δεν υπάρχει σύνδεση στο διαδίκτυο. Έλεγξε το δίκτυο και δοκίμασε ξανά.</string>
     <string name="error_unauthorized">Το TMDB απέρριψε το token. Έλεγξε το TMDB_READ_ACCESS_TOKEN στο local.properties.</string>

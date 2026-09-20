@@ -44,7 +44,6 @@ class DetailsViewModelTest {
         tagline = "Fear can hold you prisoner.",
         overview = "Two imprisoned men bond over a number of years.",
         posterPath = "/poster.jpg",
-        backdropPath = null,
         rating = 8.7,
         voteCount = 26_000,
         releaseDate = "1994-09-23",

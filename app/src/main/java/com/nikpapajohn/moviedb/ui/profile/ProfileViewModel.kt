@@ -55,6 +55,6 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun update(change: Change) {
-        _state.update { ProfileContract.reduce(it, change) }
+        _state.update { ProfileReducer.reduce(it, change) }
     }
 }

@@ -19,10 +19,10 @@ suspend fun <T> safeApiCall(block: suspend () -> T): Result<T> = try {
 } catch (e: CancellationException) {
     throw e
 } catch (e: IOException) {
-    Result.failure(AppErrorException(AppError.Network))
+    Result.failure(AppErrorException(AppError.Network, e))
 } catch (e: HttpException) {
     val error = if (e.code() == 401 || e.code() == 403) AppError.Unauthorized else AppError.Http(e.code())
-    Result.failure(AppErrorException(error))
+    Result.failure(AppErrorException(error, e))
 } catch (e: SerializationException) {
     Result.failure(AppErrorException(AppError.Unknown(e)))
 } catch (e: Exception) {
@@ -41,7 +41,7 @@ suspend fun <T> safeCall(block: suspend () -> T): Result<T> = try {
 } catch (e: CancellationException) {
     throw e
 } catch (e: Exception) {
-    Result.failure(AppErrorException(e.toAppError()))
+    Result.failure(AppErrorException(e.toAppError(), e))
 }
 
 /** The [AppError] behind a failure, falling back to [AppError.Unknown]. */

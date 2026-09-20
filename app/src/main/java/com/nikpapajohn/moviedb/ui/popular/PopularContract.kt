@@ -30,6 +30,11 @@ object PopularContract {
         val isEmpty: Boolean
             get() = items.isEmpty() && !isLoading && error == null
 
+        /**
+         * The auto-scroll trigger only. The ViewModel spells its own guard out instead of
+         * reusing this, because an explicit retry after an append error has to get through
+         * while appendError is still set.
+         */
         val canLoadMore: Boolean
             get() = !isLoading && !isLoadingMore && !endReached && appendError == null && items.isNotEmpty()
     }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -32,7 +33,18 @@ fun RatingRow(
     voteCountStyle: TextStyle = MaterialTheme.typography.labelSmall,
 ) {
     val formatted = String.format(Locale.getDefault(), "%.1f", rating)
-    val description = stringResource(R.string.cd_rating, formatted)
+    val votes = voteCount?.takeIf { it > 0 }
+    // clearAndSetSemantics below replaces everything underneath, so the vote count has to
+    // be part of this one description or it never reaches a screen reader at all.
+    val description = if (votes == null) {
+        stringResource(R.string.cd_rating, formatted)
+    } else {
+        stringResource(
+            R.string.cd_rating_with_votes,
+            formatted,
+            pluralStringResource(R.plurals.cd_votes, votes, formatVotes(votes)),
+        )
+    }
     Row(
         modifier = modifier.clearAndSetSemantics { contentDescription = description },
         verticalAlignment = Alignment.CenterVertically,
@@ -51,9 +63,9 @@ fun RatingRow(
             style = ratingStyle,
             modifier = Modifier.alignByBaseline(),
         )
-        if (voteCount != null && voteCount > 0) {
+        if (votes != null) {
             Text(
-                text = stringResource(R.string.details_votes, formatVotes(voteCount)),
+                text = pluralStringResource(R.plurals.details_votes, votes, formatVotes(votes)),
                 style = voteCountStyle,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.alignByBaseline(),
