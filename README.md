@@ -26,12 +26,12 @@ that, instead of an empty list.
 
 ## What it does
 
-| Screen | Contents |
-| --- | --- |
+| Screen | Contents                                                                                                                                    |
+| --- |---------------------------------------------------------------------------------------------------------------------------------------------|
 | Home | Popular movies, paged. Poster, title, rating, genres, and a bookmark that favorites the movie without opening it. Search is in the top bar. |
-| Details | Poster, title, tagline, rating with vote count, genre chips, release year, runtime, overview, and the add/remove favorites button. |
-| Favorites | The encrypted store, rendered with the same card. Works with no network. |
-| Profile | How favorites are stored, a way to clear them, version and TMDB attribution. |
+| Details | Poster, title, tagline, rating with vote count, genre chips, release year, runtime, overview, and the add/remove favorites button.          |
+| Favorites | The encrypted store, rendered with the same card. Works with no network.                                                                    |
+| Profile | A way to clear favorites, version and TMDB attribution.                                                                                     |
 
 ## Architecture
 
