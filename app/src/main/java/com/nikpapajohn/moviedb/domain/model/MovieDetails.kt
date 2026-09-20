@@ -1,10 +1,14 @@
 package com.nikpapajohn.moviedb.domain.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class Genre(
     val id: Int,
     val name: String,
 )
 
+@Immutable
 data class MovieDetails(
     val id: Int,
     val title: String,
