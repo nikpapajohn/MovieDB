@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.UiText
+import com.nikpapajohn.moviedb.core.safeCall
 import com.nikpapajohn.moviedb.core.toAppError
 import com.nikpapajohn.moviedb.domain.usecase.GetMovieDetailsUseCase
 import com.nikpapajohn.moviedb.domain.usecase.ObserveIsFavoriteUseCase
@@ -63,15 +64,20 @@ class DetailsViewModel @Inject constructor(
             Intent.ToggleFavorite -> {
                 val movie = _state.value.details?.toMovie() ?: return
                 viewModelScope.launch {
-                    val isFavorite = toggleFavorite(movie)
-                    emit(
-                        Effect.ShowMessage(
-                            UiText.res(
-                                if (isFavorite) R.string.message_added_to_favorites
-                                else R.string.message_removed_from_favorites,
-                            ),
-                        ),
-                    )
+                    safeCall { toggleFavorite(movie) }
+                        .onSuccess { isFavorite ->
+                            emit(
+                                Effect.ShowMessage(
+                                    UiText.res(
+                                        if (isFavorite) R.string.message_added_to_favorites
+                                        else R.string.message_removed_from_favorites,
+                                    ),
+                                ),
+                            )
+                        }
+                        // Announcing success after a failed write would be a lie, and the
+                        // bare exception would otherwise crash the app.
+                        .onFailure { emit(Effect.ShowMessage(it.toAppError().toUiText())) }
                 }
             }
         }

@@ -4,12 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.UiText
+import com.nikpapajohn.moviedb.core.safeCall
+import com.nikpapajohn.moviedb.core.toAppError
 import com.nikpapajohn.moviedb.domain.usecase.ClearFavoritesUseCase
 import com.nikpapajohn.moviedb.domain.usecase.ObserveFavoriteIdsUseCase
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.Change
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.Effect
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.Intent
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.State
+import com.nikpapajohn.moviedb.ui.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -39,9 +42,14 @@ class ProfileViewModel @Inject constructor(
 
     fun onIntent(intent: Intent) {
         when (intent) {
+            // "All favorites cleared" must only be said once the write actually succeeded;
+            // an unguarded failure here would reach the default handler and crash the app.
             Intent.ClearFavoritesClicked -> viewModelScope.launch {
-                clearFavorites()
-                _effects.send(Effect.ShowMessage(UiText.res(R.string.message_favorites_cleared)))
+                val message = safeCall { clearFavorites() }.fold(
+                    onSuccess = { UiText.res(R.string.message_favorites_cleared) },
+                    onFailure = { it.toAppError().toUiText() },
+                )
+                _effects.send(Effect.ShowMessage(message))
             }
         }
     }

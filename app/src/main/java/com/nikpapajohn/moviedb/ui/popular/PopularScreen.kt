@@ -46,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,14 +90,17 @@ fun PopularRoute(
 
     // A system language change recreates the Activity, but the ViewModel (and its
     // already-loaded, now stale-language page) survives that recreation — its own init
-    // block only runs once. Re-fetch page 1 whenever the resolved locale actually changes,
-    // skipping the very first composition so app startup does not double-fetch.
-    val locale = LocalConfiguration.current.locales[0]
-    var isFirstLocale by remember { mutableStateOf(true) }
-    LaunchedEffect(locale) {
-        if (isFirstLocale) {
-            isFirstLocale = false
-        } else {
+    // block only runs once. So page 1 has to be re-fetched when the language changes.
+    //
+    // rememberSaveable, not remember: the recreation throws the composition away, so a
+    // plain remember comes back holding its initial value and every recreation would look
+    // like the first one — the refetch would never run. Saved state survives it, so the
+    // language the list was loaded with is still here to compare against.
+    val languageTag = LocalConfiguration.current.locales[0].toLanguageTag()
+    var loadedLanguageTag by rememberSaveable { mutableStateOf(languageTag) }
+    LaunchedEffect(languageTag) {
+        if (loadedLanguageTag != languageTag) {
+            loadedLanguageTag = languageTag
             viewModel.onIntent(Intent.Retry)
         }
     }

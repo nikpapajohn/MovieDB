@@ -2,6 +2,7 @@ package com.nikpapajohn.moviedb.ui.popular
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nikpapajohn.moviedb.core.safeCall
 import com.nikpapajohn.moviedb.core.toAppError
 import com.nikpapajohn.moviedb.domain.model.MoviePage
 import com.nikpapajohn.moviedb.domain.usecase.GetPopularMoviesUseCase
@@ -71,8 +72,11 @@ class PopularViewModel @Inject constructor(
 
             Intent.FavoritesClicked -> emit(Effect.NavigateToFavorites)
 
+            // The bookmark itself is redrawn from the favorites flow, so success needs no
+            // message here — but a failed write must not reach the default uncaught handler.
             is Intent.FavoriteToggled -> viewModelScope.launch {
-                toggleFavorite(intent.movie)
+                safeCall { toggleFavorite(intent.movie) }
+                    .onFailure { emit(Effect.ShowMessage(it.toAppError().toUiText())) }
             }
         }
     }

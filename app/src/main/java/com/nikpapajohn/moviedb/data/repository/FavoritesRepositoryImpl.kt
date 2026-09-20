@@ -36,17 +36,22 @@ class FavoritesRepositoryImpl @Inject constructor(
     override fun isFavorite(movieId: Int): Flow<Boolean> =
         dataStore.data.map { data -> data.movies.any { it.id == movieId } }.distinctUntilChanged()
 
+    // "Was it already there?" is decided inside updateData, on that transaction's own
+    // snapshot. Reading it first would be a separate transaction: two toggles racing (a
+    // double tap, or the list and the details screen at once) would both see "not a
+    // favorite", both add, and both report that they added it. It also costs one decryption
+    // instead of two, since updateData already hands back the state it wrote.
     override suspend fun toggle(movie: Movie): Boolean = withContext(dispatchers.io) {
-        val wasFavorite = dataStore.data.first().movies.any { it.id == movie.id }
-        dataStore.updateData { current ->
+        val updated = dataStore.updateData { current ->
             val without = current.movies.filterNot { it.id == movie.id }
+            val wasFavorite = without.size != current.movies.size
             if (wasFavorite) {
                 current.copy(movies = without)
             } else {
                 current.copy(movies = without + movie.toFavorite(System.currentTimeMillis()))
             }
         }
-        !wasFavorite
+        updated.movies.any { it.id == movie.id }
     }
 
     override suspend fun clear() = withContext(dispatchers.io) {
