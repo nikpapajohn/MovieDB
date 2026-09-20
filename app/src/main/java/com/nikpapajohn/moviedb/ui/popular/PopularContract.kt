@@ -1,5 +1,6 @@
 package com.nikpapajohn.moviedb.ui.popular
 
+import androidx.compose.runtime.Immutable
 import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.domain.model.Movie
 import com.nikpapajohn.moviedb.domain.model.MovieListItem
@@ -11,6 +12,9 @@ import com.nikpapajohn.moviedb.domain.model.MovieListItem
  */
 object PopularContract {
 
+    // @Immutable: every instance is produced via copy()/emptyList()/emptySet() in the reducer;
+    // nothing here ever mutates a List/Set field in place.
+    @Immutable
     data class State(
         val items: List<MovieListItem> = emptyList(),
         val favoriteIds: Set<Int> = emptySet(),
