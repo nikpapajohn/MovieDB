@@ -12,9 +12,7 @@ import kotlinx.coroutines.sync.withLock
  * A failure here is not worth failing the list for: we fall back to no genre labels.
  */
 @Singleton
-class GenreCache @Inject constructor(
-    private val api: TmdbApi,
-) {
+class GenreCache @Inject constructor(private val api: TmdbApi) {
     private val mutex = Mutex()
     private var cache: Map<Int, String>? = null
     private var cachedLanguage: String? = null

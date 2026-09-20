@@ -18,7 +18,7 @@ data class MovieDto(
     @SerialName("vote_average") val voteAverage: Double? = null,
     @SerialName("vote_count") val voteCount: Int? = null,
     @SerialName("release_date") val releaseDate: String? = null,
-    @SerialName("genre_ids") val genreIds: List<Int>? = null,
+    @SerialName("genre_ids") val genreIds: List<Int>? = null
 )
 
 @Serializable
@@ -26,19 +26,14 @@ data class MoviePageDto(
     @SerialName("page") val page: Int = 1,
     @SerialName("results") val results: List<MovieDto> = emptyList(),
     @SerialName("total_pages") val totalPages: Int = 1,
-    @SerialName("total_results") val totalResults: Int = 0,
+    @SerialName("total_results") val totalResults: Int = 0
 )
 
 @Serializable
-data class GenreDto(
-    @SerialName("id") val id: Int,
-    @SerialName("name") val name: String,
-)
+data class GenreDto(@SerialName("id") val id: Int, @SerialName("name") val name: String)
 
 @Serializable
-data class GenreListDto(
-    @SerialName("genres") val genres: List<GenreDto> = emptyList(),
-)
+data class GenreListDto(@SerialName("genres") val genres: List<GenreDto> = emptyList())
 
 @Serializable
 data class MovieDetailsDto(
@@ -53,5 +48,5 @@ data class MovieDetailsDto(
     @SerialName("vote_count") val voteCount: Int? = null,
     @SerialName("release_date") val releaseDate: String? = null,
     @SerialName("runtime") val runtime: Int? = null,
-    @SerialName("genres") val genres: List<GenreDto>? = null,
+    @SerialName("genres") val genres: List<GenreDto>? = null
 )

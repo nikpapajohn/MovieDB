@@ -37,7 +37,7 @@ fun PosterImage(
     size: PosterSize,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    cornerRadius: Dp = 8.dp,
+    cornerRadius: Dp = 8.dp
 ) {
     val url = posterUrl(posterPath, size)
     // AsyncImage, not SubcomposeAsyncImage: this draws once per row of the list, and
@@ -48,13 +48,13 @@ fun PosterImage(
         modifier = modifier
             .clip(RoundedCornerShape(cornerRadius))
             .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         if (url == null || isError) {
             Icon(
                 imageVector = Icons.Outlined.Movie,
                 contentDescription = contentDescription,
-                tint = MaterialTheme.colorScheme.outline,
+                tint = MaterialTheme.colorScheme.outline
             )
         } else {
             AsyncImage(
@@ -62,7 +62,7 @@ fun PosterImage(
                 contentDescription = contentDescription,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
-                onError = { isError = true },
+                onError = { isError = true }
             )
         }
     }
@@ -78,7 +78,7 @@ private fun PosterImageMissingPreview() {
             posterPath = null,
             size = PosterSize.LIST,
             contentDescription = null,
-            modifier = Modifier.width(96.dp).height(144.dp),
+            modifier = Modifier.width(96.dp).height(144.dp)
         )
     }
 }

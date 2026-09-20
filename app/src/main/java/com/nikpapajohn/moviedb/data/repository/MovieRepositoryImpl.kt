@@ -17,7 +17,7 @@ import javax.inject.Singleton
 @Singleton
 class MovieRepositoryImpl @Inject constructor(
     private val api: TmdbApi,
-    private val genreCache: GenreCache,
+    private val genreCache: GenreCache
 ) : MovieRepository {
 
     override suspend fun popularMovies(page: Int): Result<MoviePage> =
@@ -32,6 +32,6 @@ class MovieRepositoryImpl @Inject constructor(
     private suspend fun MoviePageDto.toMoviePage() = MoviePage(
         page = page,
         movies = results.map { dto -> dto.toDomain(genreCache.namesFor(dto.genreIds)) },
-        totalPages = totalPages,
+        totalPages = totalPages
     )
 }

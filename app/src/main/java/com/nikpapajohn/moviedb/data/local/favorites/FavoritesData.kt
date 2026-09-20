@@ -14,20 +14,18 @@ data class FavoriteMovie(
     val posterPath: String? = null,
     val rating: Double = 0.0,
     val genreNames: List<String> = emptyList(),
-    val addedAtEpochMillis: Long = 0L,
+    val addedAtEpochMillis: Long = 0L
 )
 
 @Serializable
-data class FavoritesData(
-    val movies: List<FavoriteMovie> = emptyList(),
-)
+data class FavoritesData(val movies: List<FavoriteMovie> = emptyList())
 
 fun FavoriteMovie.toDomain(): Movie = Movie(
     id = id,
     title = title,
     posterPath = posterPath,
     rating = rating,
-    genreNames = genreNames,
+    genreNames = genreNames
 )
 
 fun Movie.toFavorite(now: Long): FavoriteMovie = FavoriteMovie(
@@ -36,5 +34,5 @@ fun Movie.toFavorite(now: Long): FavoriteMovie = FavoriteMovie(
     posterPath = posterPath,
     rating = rating,
     genreNames = genreNames,
-    addedAtEpochMillis = now,
+    addedAtEpochMillis = now
 )

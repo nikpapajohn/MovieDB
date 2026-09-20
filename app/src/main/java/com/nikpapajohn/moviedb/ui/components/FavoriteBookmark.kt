@@ -21,24 +21,27 @@ import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
  * you can favorite a movie without opening its details.
  */
 @Composable
-fun FavoriteBookmark(
-    isFavorite: Boolean,
-    onToggle: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val scale by animateFloatAsState(targetValue = if (isFavorite) 1.1f else 1f, label = "bookmarkScale")
+fun FavoriteBookmark(isFavorite: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
+    val scale by animateFloatAsState(
+        targetValue = if (isFavorite) 1.1f else 1f,
+        label = "bookmarkScale"
+    )
     IconToggleButton(
         checked = isFavorite,
         onCheckedChange = { onToggle() },
-        modifier = modifier,
+        modifier = modifier
     ) {
         Icon(
             imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
             contentDescription = stringResource(
-                if (isFavorite) R.string.cd_remove_favorite else R.string.cd_add_favorite,
+                if (isFavorite) R.string.cd_remove_favorite else R.string.cd_add_favorite
             ),
-            tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-            modifier = Modifier.scale(scale),
+            tint = if (isFavorite) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.outline
+            },
+            modifier = Modifier.scale(scale)
         )
     }
 }

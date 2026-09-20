@@ -12,9 +12,8 @@ import org.junit.runner.Description
 
 /** Replaces Dispatchers.Main so ViewModel coroutines run on the test scheduler. */
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainDispatcherRule(
-    val testDispatcher: CoroutineDispatcher = StandardTestDispatcher(),
-) : TestWatcher() {
+class MainDispatcherRule(val testDispatcher: CoroutineDispatcher = StandardTestDispatcher()) :
+    TestWatcher() {
     override fun starting(description: Description) = Dispatchers.setMain(testDispatcher)
     override fun finished(description: Description) = Dispatchers.resetMain()
 }

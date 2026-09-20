@@ -1,9 +1,6 @@
 package com.nikpapajohn.moviedb.domain.model
 
-data class Genre(
-    val id: Int,
-    val name: String,
-)
+data class Genre(val id: Int, val name: String)
 
 data class MovieDetails(
     val id: Int,
@@ -16,7 +13,7 @@ data class MovieDetails(
     /** ISO date as TMDB sends it; may be null or blank for unreleased entries. */
     val releaseDate: String?,
     val runtimeMinutes: Int?,
-    val genres: List<Genre>,
+    val genres: List<Genre>
 ) {
     val releaseYear: String? = releaseDate?.takeIf { it.length >= 4 }?.substring(0, 4)
 
@@ -25,6 +22,6 @@ data class MovieDetails(
         title = title,
         posterPath = posterPath,
         rating = rating,
-        genreNames = genres.map { it.name },
+        genreNames = genres.map { it.name }
     )
 }

@@ -29,7 +29,9 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
     private var cachedKey: SecretKey? = null
 
     override fun encrypt(plain: ByteArray): ByteArray {
-        val cipher = Cipher.getInstance(TRANSFORMATION).apply { init(Cipher.ENCRYPT_MODE, secretKey()) }
+        val cipher = Cipher.getInstance(TRANSFORMATION).apply {
+            init(Cipher.ENCRYPT_MODE, secretKey())
+        }
         val iv = cipher.iv
         require(iv.size == IV_SIZE) { "Unexpected IV size: ${iv.size}" }
         val cipherText = cipher.doFinal(plain)
@@ -42,7 +44,9 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
 
     override fun decrypt(payload: ByteArray): ByteArray {
         if (payload.size <= 1 + IV_SIZE) {
-            throw CryptoUnavailableException("Encrypted payload is too short (${payload.size} bytes)")
+            throw CryptoUnavailableException(
+                "Encrypted payload is too short (${payload.size} bytes)"
+            )
         }
         if (payload[0] != FORMAT_VERSION) {
             throw CryptoUnavailableException("Unsupported payload version ${payload[0]}")
@@ -57,7 +61,10 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
         } catch (e: KeyPermanentlyInvalidatedException) {
             // Device restored to other hardware, or the lock screen was reset.
             recreateKey()
-            throw CryptoUnavailableException("Keystore key was invalidated; favorites were reset", e)
+            throw CryptoUnavailableException(
+                "Keystore key was invalidated; favorites were reset",
+                e
+            )
         } catch (e: Exception) {
             throw CryptoUnavailableException("Cannot decrypt favorites", e)
         }
@@ -78,7 +85,7 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
         generator.init(
             KeyGenParameterSpec.Builder(
                 KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
             )
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
@@ -86,7 +93,7 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
                 .setRandomizedEncryptionRequired(true)
                 // Deliberately no setUserAuthenticationRequired: favorites must be readable
                 // while the screen is locked, and the data is not authentication material.
-                .build(),
+                .build()
         )
         return generator.generateKey()
     }

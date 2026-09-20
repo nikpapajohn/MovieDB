@@ -15,8 +15,8 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -85,9 +85,9 @@ fun MovieDbApp() {
                 onAboutClick = {
                     closeDrawer()
                     navController.navigate(Destination.About)
-                },
+                }
             )
-        },
+        }
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -100,13 +100,13 @@ fun MovieDbApp() {
                     // dropping the touch feedback altogether.
                     CompositionLocalProvider(
                         LocalRippleConfiguration provides RippleConfiguration(
-                            color = MaterialTheme.colorScheme.primary,
-                        ),
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     ) {
                         NavigationBar(
                             // Material tints this with surfaceContainer, which reads lavender
                             // over our teal palette. The mockup's bar is plain surface.
-                            containerColor = MaterialTheme.colorScheme.surface,
+                            containerColor = MaterialTheme.colorScheme.surface
                         ) {
                             BottomTab.entries.forEach { tab ->
                                 val selected = tab == selectedTab
@@ -122,31 +122,33 @@ fun MovieDbApp() {
                                             } else {
                                                 tab.unselectedIcon
                                             },
-                                            contentDescription = null,
+                                            contentDescription = null
                                         )
                                     },
                                     label = { Text(stringResource(tab.labelRes)) },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = MaterialTheme.colorScheme.primary,
                                         selectedTextColor = MaterialTheme.colorScheme.primary,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedIconColor =
+                                        MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedTextColor =
+                                        MaterialTheme.colorScheme.onSurfaceVariant,
                                         // The mockup has no pill behind the selected icon.
-                                        indicatorColor = Color.Transparent,
-                                    ),
+                                        indicatorColor = Color.Transparent
+                                    )
                                 )
                             }
                         }
                     }
                 }
-            },
+            }
         ) { innerPadding ->
             val openDrawer: () -> Unit = { scope.launch { drawerState.open() } }
 
             NavHost(
                 navController = navController,
                 startDestination = Destination.Home,
-                modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
+                modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
             ) {
                 composable<Destination.Home> {
                     PopularRoute(
@@ -155,14 +157,16 @@ fun MovieDbApp() {
                         // Favorites is a tab, so the FAB switches tabs instead of pushing a
                         // second Favorites entry on top of Home. A pushed entry left the tab
                         // bar unable to return to Home, which is the start destination.
-                        onNavigateToFavorites = { navController.navigateToTab(BottomTab.FAVORITES) },
-                        onMenuClick = openDrawer,
+                        onNavigateToFavorites = {
+                            navController.navigateToTab(BottomTab.FAVORITES)
+                        },
+                        onMenuClick = openDrawer
                     )
                 }
                 composable<Destination.Favorites> {
                     FavoritesRoute(
                         onNavigateToDetails = { navController.navigate(Destination.Details(it)) },
-                        onMenuClick = openDrawer,
+                        onMenuClick = openDrawer
                     )
                 }
                 composable<Destination.Profile> {
@@ -192,31 +196,33 @@ private fun NavHostController.navigateToTab(tab: BottomTab) {
 private fun AppDrawer(
     selectedTab: BottomTab?,
     onTabClick: (BottomTab) -> Unit,
-    onAboutClick: () -> Unit,
+    onAboutClick: () -> Unit
 ) {
     // Drop the top inset here: ModalDrawerSheet otherwise reserves it with its own (light)
     // container color, leaving a white strip above the header where every other screen's top
     // bar draws the teal primary colour behind the transparent status bar. The header Column
     // below applies that inset itself so its content still clears the status bar icons.
     ModalDrawerSheet(
-        windowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Bottom + WindowInsetsSides.Start),
+        windowInsets = WindowInsets.systemBars.only(
+            WindowInsetsSides.Bottom + WindowInsetsSides.Start
+        )
     ) {
         Surface(color = MaterialTheme.colorScheme.primary) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(start = 24.dp, end = 24.dp, top = 32.dp, bottom = 20.dp),
+                    .padding(start = 24.dp, end = 24.dp, top = 32.dp, bottom = 20.dp)
             ) {
                 Text(
                     text = stringResource(R.string.home_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
                 Text(
                     text = stringResource(R.string.home_welcome_subtitle),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
                 )
             }
         }
@@ -228,12 +234,12 @@ private fun AppDrawer(
                 icon = {
                     Icon(
                         imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
-                        contentDescription = null,
+                        contentDescription = null
                     )
                 },
                 selected = selected,
                 onClick = { onTabClick(tab) },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
         }
 
@@ -244,7 +250,7 @@ private fun AppDrawer(
             icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
             selected = false,
             onClick = onAboutClick,
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
 }

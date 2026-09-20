@@ -17,7 +17,7 @@ class EncryptedFavoritesSerializer(
     // Deliberately not the Json singleton from NetworkModule: that one is tuned for
     // reading TMDB's payloads (explicitNulls, coerceInputValues), and this one defines an
     // on-disk format. Sharing it would let a change made for the API rewrite stored files.
-    private val json: Json = Json { ignoreUnknownKeys = true },
+    private val json: Json = Json { ignoreUnknownKeys = true }
 ) : Serializer<FavoritesData> {
 
     override val defaultValue: FavoritesData = FavoritesData()
@@ -26,7 +26,10 @@ class EncryptedFavoritesSerializer(
         val bytes = input.readBytes()
         if (bytes.isEmpty()) return defaultValue
         return try {
-            json.decodeFromString(FavoritesData.serializer(), crypto.decrypt(bytes).decodeToString())
+            json.decodeFromString(
+                FavoritesData.serializer(),
+                crypto.decrypt(bytes).decodeToString()
+            )
         } catch (e: CancellationException) {
             // Never a CorruptionException: that hands the file to the ReplaceFileCorruption-
             // Handler, which empties it. A cancelled read is not a damaged file, and must

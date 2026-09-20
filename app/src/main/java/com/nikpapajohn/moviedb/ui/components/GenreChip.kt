@@ -26,7 +26,7 @@ fun GenreChip(text: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .clip(RoundedCornerShape(6.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     )
 }
 

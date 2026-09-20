@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 class FavoritesRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<FavoritesData>,
     private val movieRepository: MovieRepository,
-    private val dispatchers: DispatcherProvider,
+    private val dispatchers: DispatcherProvider
 ) : FavoritesRepository {
 
     private val refreshLimit = Semaphore(MAX_PARALLEL_REFRESH)
@@ -32,10 +32,9 @@ class FavoritesRepositoryImpl @Inject constructor(
     override fun favoriteIds(): Flow<Set<Int>> =
         dataStore.data.map { data -> data.movies.map { it.id }.toSet() }.distinctUntilChanged()
 
-    override fun favorites(): Flow<List<Movie>> =
-        dataStore.data.map { data ->
-            data.movies.sortedByDescending { it.addedAtEpochMillis }.map { it.toDomain() }
-        }.distinctUntilChanged()
+    override fun favorites(): Flow<List<Movie>> = dataStore.data.map { data ->
+        data.movies.sortedByDescending { it.addedAtEpochMillis }.map { it.toDomain() }
+    }.distinctUntilChanged()
 
     override fun isFavorite(movieId: Int): Flow<Boolean> =
         dataStore.data.map { data -> data.movies.any { it.id == movieId } }.distinctUntilChanged()
@@ -76,7 +75,9 @@ class FavoritesRepositoryImpl @Inject constructor(
             async {
                 refreshLimit.withPermit {
                     movieRepository.movieDetails(favorite.id)
-                        .map { details -> details.toMovie().toFavorite(favorite.addedAtEpochMillis) }
+                        .map { details ->
+                            details.toMovie().toFavorite(favorite.addedAtEpochMillis)
+                        }
                         .getOrDefault(favorite)
                 }
             }

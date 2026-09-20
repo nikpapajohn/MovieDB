@@ -48,7 +48,7 @@ class EncryptedFavoritesStoreTest {
         title = "The Shawshank Redemption",
         posterPath = "/poster.jpg",
         rating = 8.7,
-        genreNames = listOf("Drama"),
+        genreNames = listOf("Drama")
     )
 
     @Before
@@ -70,7 +70,7 @@ class EncryptedFavoritesStoreTest {
             serializer = EncryptedFavoritesSerializer(KeystoreCryptoManager()),
             corruptionHandler = ReplaceFileCorruptionHandler { FavoritesData() },
             scope = scope,
-            produceFile = { file },
+            produceFile = { file }
         )
     }
 
@@ -80,9 +80,11 @@ class EncryptedFavoritesStoreTest {
         scopes.clear()
     }
 
-    private fun repository(store: DataStore<FavoritesData>) =
-        FavoritesRepositoryImpl(store,
-            FakeMovieRepository(), InstrumentedDispatcherProvider())
+    private fun repository(store: DataStore<FavoritesData>) = FavoritesRepositoryImpl(
+        store,
+        FakeMovieRepository(),
+        InstrumentedDispatcherProvider()
+    )
 
     /**
      * None of these tests exercise [FavoritesRepositoryImpl.refresh], the only method that

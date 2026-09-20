@@ -10,10 +10,7 @@ object FavoritesContract {
     // @Immutable: every instance is produced via copy()/map{} in reduce(); the items list is
     // never mutated in place.
     @Immutable
-    data class State(
-        val items: List<MovieListItem> = emptyList(),
-        val isLoading: Boolean = true,
-    ) {
+    data class State(val items: List<MovieListItem> = emptyList(), val isLoading: Boolean = true) {
         val isEmpty: Boolean get() = items.isEmpty() && !isLoading
     }
 

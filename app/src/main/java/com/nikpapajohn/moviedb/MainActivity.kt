@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                 SystemBarStyle.dark(Color.TRANSPARENT)
             } else {
                 SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-            },
+            }
         )
         setContent {
             MovieDbTheme {

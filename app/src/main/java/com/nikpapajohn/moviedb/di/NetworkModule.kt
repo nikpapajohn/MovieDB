@@ -1,14 +1,14 @@
 package com.nikpapajohn.moviedb.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import com.nikpapajohn.moviedb.BuildConfig
 import com.nikpapajohn.moviedb.data.remote.AuthInterceptor
 import com.nikpapajohn.moviedb.data.remote.LanguageInterceptor
 import com.nikpapajohn.moviedb.data.remote.TmdbApi
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
@@ -33,7 +33,11 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC else HttpLoggingInterceptor.Level.NONE
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BASIC
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
             // The token must never end up in logcat, a bug report or a crash log.
             redactHeader("Authorization")
         }

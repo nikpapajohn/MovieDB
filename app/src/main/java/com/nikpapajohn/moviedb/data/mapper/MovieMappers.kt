@@ -12,7 +12,7 @@ fun MovieDto.toDomain(genreNames: List<String> = emptyList()): Movie = Movie(
     title = title?.takeIf { it.isNotBlank() } ?: originalTitle.orEmpty(),
     posterPath = posterPath?.takeIf { it.isNotBlank() },
     rating = voteAverage ?: 0.0,
-    genreNames = genreNames,
+    genreNames = genreNames
 )
 
 fun GenreDto.toDomain(): Genre = Genre(id = id, name = name)
@@ -29,5 +29,5 @@ fun MovieDetailsDto.toDomain(): MovieDetails = MovieDetails(
     voteCount = voteCount ?: 0,
     releaseDate = releaseDate?.takeIf { it.isNotBlank() },
     runtimeMinutes = runtime?.takeIf { it > 0 },
-    genres = genres.orEmpty().map { it.toDomain() },
+    genres = genres.orEmpty().map { it.toDomain() }
 )

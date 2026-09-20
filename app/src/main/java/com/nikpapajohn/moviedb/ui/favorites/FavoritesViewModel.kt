@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 class FavoritesViewModel @Inject constructor(
     observeFavorites: ObserveFavoritesUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
-    private val refreshFavorites: RefreshFavoritesUseCase,
+    private val refreshFavorites: RefreshFavoritesUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -55,10 +55,13 @@ class FavoritesViewModel @Inject constructor(
                         emit(
                             Effect.ShowMessage(
                                 UiText.res(
-                                    if (isFavorite) R.string.message_added_to_favorites
-                                    else R.string.message_removed_from_favorites,
-                                ),
-                            ),
+                                    if (isFavorite) {
+                                        R.string.message_added_to_favorites
+                                    } else {
+                                        R.string.message_removed_from_favorites
+                                    }
+                                )
+                            )
                         )
                     }
                     .onFailure { emit(Effect.ShowMessage(it.toAppError().toUiText())) }

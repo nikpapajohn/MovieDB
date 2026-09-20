@@ -1,7 +1,6 @@
 package com.nikpapajohn.moviedb.ui.popular
 
 import android.content.res.Configuration
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,16 +8,16 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -90,7 +89,7 @@ fun PopularRoute(
     onNavigateToAbout: () -> Unit,
     onNavigateToFavorites: () -> Unit,
     onMenuClick: () -> Unit,
-    viewModel: PopularViewModel = hiltViewModel(),
+    viewModel: PopularViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = rememberSnackbarController()
@@ -126,7 +125,7 @@ fun PopularRoute(
         onMessageShown = snackbar::consume,
         onMenuClick = onMenuClick,
         onAboutClick = onNavigateToAbout,
-        onIntent = viewModel::onIntent,
+        onIntent = viewModel::onIntent
     )
 }
 
@@ -138,7 +137,7 @@ fun PopularScreen(
     onMessageShown: () -> Unit,
     onMenuClick: () -> Unit,
     onAboutClick: () -> Unit,
-    onIntent: (Intent) -> Unit,
+    onIntent: (Intent) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     var menuExpanded by remember { mutableStateOf(false) }
@@ -181,7 +180,7 @@ fun PopularScreen(
                     IconButton(onClick = onMenuClick) {
                         Icon(
                             Icons.Filled.Menu,
-                            contentDescription = stringResource(R.string.action_menu),
+                            contentDescription = stringResource(R.string.action_menu)
                         )
                     }
                 },
@@ -189,44 +188,51 @@ fun PopularScreen(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 actions = {
                     IconButton(onClick = { onIntent(Intent.SearchToggled) }) {
                         Icon(
-                            imageVector = if (state.isSearchVisible) Icons.Filled.Close else Icons.Filled.Search,
+                            imageVector = if (state.isSearchVisible) {
+                                Icons.Filled.Close
+                            } else {
+                                Icons.Filled.Search
+                            },
                             contentDescription = stringResource(
-                                if (state.isSearchVisible) R.string.action_close_search
-                                else R.string.action_search,
-                            ),
+                                if (state.isSearchVisible) {
+                                    R.string.action_close_search
+                                } else {
+                                    R.string.action_search
+                                }
+                            )
                         )
                     }
                     IconButton(onClick = { menuExpanded = true }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
-                            contentDescription = stringResource(R.string.action_more),
+                            contentDescription = stringResource(R.string.action_more)
                         )
                     }
                     DropdownMenu(
                         expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false },
+                        onDismissRequest = { menuExpanded = false }
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_refresh)) },
                             onClick = {
                                 menuExpanded = false
                                 onIntent(Intent.Retry)
-                            },
+                            }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.nav_about)) },
                             onClick = {
                                 menuExpanded = false
                                 onAboutClick()
-                            },
+                            }
                         )
                     }
-                },
+                }
             )
         },
         floatingActionButton = {
@@ -239,19 +245,19 @@ fun PopularScreen(
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 // Landscape pushes it against the navigation bar on the right edge, so it is
                 // pulled back inwards; portrait keeps the standard 16dp margin.
-                modifier = Modifier.padding(end = if (isLandscape) 40.dp else 0.dp),
+                modifier = Modifier.padding(end = if (isLandscape) 40.dp else 0.dp)
             ) {
                 Icon(
                     Icons.Filled.Favorite,
-                    contentDescription = stringResource(R.string.action_open_favorites),
+                    contentDescription = stringResource(R.string.action_open_favorites)
                 )
             }
-        },
+        }
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize(),
+                .fillMaxSize()
         ) {
             if (state.isSearchVisible) {
                 OutlinedTextField(
@@ -266,13 +272,13 @@ fun PopularScreen(
                         onSearch = {
                             keyboardController?.hide()
                             focusManager.clearFocus()
-                        },
+                        }
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .focusRequester(searchFocusRequester)
-                        .onFocusChanged { isSearchFieldFocused = it.isFocused },
+                        .onFocusChanged { isSearchFieldFocused = it.isFocused }
                 )
             } else if (!isLandscape) {
                 // In landscape the welcome block would eat most of the visible list.
@@ -281,11 +287,14 @@ fun PopularScreen(
 
             Text(
                 text = stringResource(
-                    if (state.query.isBlank()) R.string.home_section_popular
-                    else R.string.home_section_results,
+                    if (state.query.isBlank()) {
+                        R.string.home_section_popular
+                    } else {
+                        R.string.home_section_results
+                    }
                 ),
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             when {
@@ -293,13 +302,13 @@ fun PopularScreen(
 
                 state.error != null -> ErrorState(
                     message = state.error,
-                    onRetry = { onIntent(Intent.Retry) },
+                    onRetry = { onIntent(Intent.Retry) }
                 )
 
                 state.isEmpty -> Text(
                     text = stringResource(R.string.error_empty_results),
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(16.dp)
                 )
 
                 else -> MovieList(state = state, onIntent = onIntent)
@@ -315,17 +324,17 @@ private fun WelcomeHeader() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
                 text = stringResource(R.string.home_welcome_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Text(
                 text = stringResource(R.string.home_welcome_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
             )
         }
     }
@@ -335,10 +344,7 @@ private fun WelcomeHeader() {
 private const val PREFETCH_DISTANCE = 2
 
 @Composable
-private fun MovieList(
-    state: State,
-    onIntent: (Intent) -> Unit,
-) {
+private fun MovieList(state: State, onIntent: (Intent) -> Unit) {
     val listState = rememberLazyListState()
     // Pagination is driven by the scroll position rather than by an effect living inside
     // the last row. Read inside snapshotFlow, so it re-evaluates when either the scroll or
@@ -361,13 +367,13 @@ private fun MovieList(
         modifier = Modifier.fillMaxSize(),
         // Bottom room for the FAB, so the last card is never trapped under it.
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 88.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items = state.items, key = { item -> item.movie.id }) { item ->
             MovieCard(
                 item = item,
                 onClick = { onIntent(Intent.MovieClicked(item.movie.id)) },
-                onToggleFavorite = { onIntent(Intent.FavoriteToggled(item.movie)) },
+                onToggleFavorite = { onIntent(Intent.FavoriteToggled(item.movie)) }
             )
         }
 
@@ -377,7 +383,7 @@ private fun MovieList(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
@@ -394,17 +400,35 @@ private fun MovieList(
 
 private val previewMovies = listOf(
     MovieListItem(
-        movie = Movie(id = 1, title = "The Shawshank Redemption", posterPath = null, rating = 8.7, genreNames = listOf("Drama")),
-        isFavorite = true,
+        movie = Movie(
+            id = 1,
+            title = "The Shawshank Redemption",
+            posterPath = null,
+            rating = 8.7,
+            genreNames = listOf("Drama")
+        ),
+        isFavorite = true
     ),
     MovieListItem(
-        movie = Movie(id = 2, title = "The Godfather", posterPath = null, rating = 8.7, genreNames = listOf("Crime", "Drama")),
-        isFavorite = false,
+        movie = Movie(
+            id = 2,
+            title = "The Godfather",
+            posterPath = null,
+            rating = 8.7,
+            genreNames = listOf("Crime", "Drama")
+        ),
+        isFavorite = false
     ),
     MovieListItem(
-        movie = Movie(id = 3, title = "The Dark Knight", posterPath = null, rating = 8.5, genreNames = listOf("Action")),
-        isFavorite = false,
-    ),
+        movie = Movie(
+            id = 3,
+            title = "The Dark Knight",
+            posterPath = null,
+            rating = 8.5,
+            genreNames = listOf("Action")
+        ),
+        isFavorite = false
+    )
 )
 
 @Preview(name = "Popular list", showBackground = true)
@@ -417,7 +441,7 @@ private fun PopularScreenPreview() {
             onMessageShown = {},
             onMenuClick = {},
             onAboutClick = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
@@ -427,12 +451,17 @@ private fun PopularScreenPreview() {
 private fun PopularScreenSearchPreview() {
     MovieDbTheme {
         PopularScreen(
-            state = State(items = previewMovies, isLoading = false, isSearchVisible = true, query = "dark"),
+            state = State(
+                items = previewMovies,
+                isLoading = false,
+                isSearchVisible = true,
+                query = "dark"
+            ),
             message = null,
             onMessageShown = {},
             onMenuClick = {},
             onAboutClick = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
@@ -447,7 +476,7 @@ private fun PopularScreenLoadingPreview() {
             onMessageShown = {},
             onMenuClick = {},
             onAboutClick = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
@@ -462,7 +491,7 @@ private fun PopularScreenErrorPreview() {
             onMessageShown = {},
             onMenuClick = {},
             onAboutClick = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }

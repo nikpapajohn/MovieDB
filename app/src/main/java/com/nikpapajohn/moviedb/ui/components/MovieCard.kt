@@ -36,7 +36,7 @@ fun MovieCard(
     item: MovieListItem,
     onClick: () -> Unit,
     onToggleFavorite: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Card(
         onClick = onClick,
@@ -44,11 +44,11 @@ fun MovieCard(
             .fillMaxWidth()
             .testTag(MOVIE_CARD_TAG),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
             modifier = Modifier.padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             PosterImage(
                 posterPath = item.movie.posterPath,
@@ -56,19 +56,19 @@ fun MovieCard(
                 contentDescription = stringResource(R.string.cd_poster, item.movie.title),
                 modifier = Modifier
                     .width(64.dp)
-                    .height(96.dp),
+                    .height(96.dp)
             )
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp, vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = item.movie.title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
                 RatingRow(rating = item.movie.rating)
                 if (item.movie.genreNames.isNotEmpty()) {
@@ -77,7 +77,7 @@ fun MovieCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -91,7 +91,7 @@ private val previewMovie = Movie(
     title = "The Shawshank Redemption",
     posterPath = null,
     rating = 8.7,
-    genreNames = listOf("Drama", "Crime"),
+    genreNames = listOf("Drama", "Crime")
 )
 
 @Preview(name = "Favorite", showBackground = true)
@@ -101,7 +101,7 @@ private fun MovieCardFavoritePreview() {
         MovieCard(
             item = MovieListItem(movie = previewMovie, isFavorite = true),
             onClick = {},
-            onToggleFavorite = {},
+            onToggleFavorite = {}
         )
     }
 }
@@ -113,7 +113,7 @@ private fun MovieCardNotFavoritePreview() {
         MovieCard(
             item = MovieListItem(movie = previewMovie, isFavorite = false),
             onClick = {},
-            onToggleFavorite = {},
+            onToggleFavorite = {}
         )
     }
 }

@@ -8,14 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -52,6 +52,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nikpapajohn.moviedb.R
@@ -74,13 +75,9 @@ import com.nikpapajohn.moviedb.ui.details.DetailsContract.Effect
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Intent
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.State
 import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
-import androidx.core.net.toUri
 
 @Composable
-fun DetailsRoute(
-    onNavigateBack: () -> Unit,
-    viewModel: DetailsViewModel = hiltViewModel(),
-) {
+fun DetailsRoute(onNavigateBack: () -> Unit, viewModel: DetailsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = rememberSnackbarController()
     val context = LocalContext.current
@@ -98,7 +95,7 @@ fun DetailsRoute(
         state = state,
         message = snackbar.current,
         onMessageShown = snackbar::consume,
-        onIntent = viewModel::onIntent,
+        onIntent = viewModel::onIntent
     )
 }
 
@@ -108,7 +105,7 @@ fun DetailsScreen(
     state: State,
     message: SnackbarRequest?,
     onMessageShown: () -> Unit,
-    onIntent: (Intent) -> Unit,
+    onIntent: (Intent) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     var menuExpanded by remember { mutableStateOf(false) }
@@ -124,44 +121,44 @@ fun DetailsScreen(
                 title = {
                     Text(
                         text = stringResource(R.string.details_title),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { onIntent(Intent.BackClicked) }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back),
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
                 actions = {
                     IconButton(
                         onClick = { menuExpanded = true },
-                        enabled = state.details != null,
+                        enabled = state.details != null
                     ) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
-                            contentDescription = stringResource(R.string.action_more),
+                            contentDescription = stringResource(R.string.action_more)
                         )
                     }
                     DropdownMenu(
                         expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false },
+                        onDismissRequest = { menuExpanded = false }
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_share)) },
                             onClick = {
                                 menuExpanded = false
                                 onIntent(Intent.ShareClicked)
-                            },
+                            }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_open_tmdb)) },
                             onClick = {
                                 menuExpanded = false
                                 onIntent(Intent.OpenInTmdbClicked)
-                            },
+                            }
                         )
                     }
                 },
@@ -169,29 +166,29 @@ fun DetailsScreen(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-        },
+        }
     ) { padding ->
         Box(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize(),
-            contentAlignment = Alignment.TopCenter,
+            contentAlignment = Alignment.TopCenter
         ) {
             when {
                 state.isLoading && state.details == null -> LoadingState()
 
                 state.error != null && state.details == null -> ErrorState(
                     message = state.error,
-                    onRetry = { onIntent(Intent.Retry) },
+                    onRetry = { onIntent(Intent.Retry) }
                 )
 
                 state.details != null -> DetailsContent(
                     details = state.details,
                     isFavorite = state.isFavorite,
-                    onToggleFavorite = { onIntent(Intent.ToggleFavorite) },
+                    onToggleFavorite = { onIntent(Intent.ToggleFavorite) }
                 )
             }
         }
@@ -202,7 +199,7 @@ fun DetailsScreen(
 private fun DetailsContent(
     details: MovieDetails,
     isFavorite: Boolean,
-    onToggleFavorite: () -> Unit,
+    onToggleFavorite: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -214,7 +211,7 @@ private fun DetailsContent(
             .widthIn(max = 640.dp)
             .fillMaxWidth()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             PosterImage(
@@ -223,7 +220,7 @@ private fun DetailsContent(
                 contentDescription = stringResource(R.string.cd_poster, details.title),
                 modifier = Modifier
                     .width(150.dp)
-                    .height(260.dp),
+                    .height(260.dp)
             )
             Column(
                 // Matches the poster's height so the row's content spreads across it instead
@@ -235,7 +232,7 @@ private fun DetailsContent(
                 modifier = Modifier
                     .weight(1f)
                     .height(260.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 // An empty first item so SpaceBetween's even gaps include one above the
                 // title too — otherwise the title would sit flush against the top edge.
@@ -243,16 +240,16 @@ private fun DetailsContent(
                 Text(
                     text = details.title,
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Bold
                 )
                 RatingRow(
                     rating = details.rating,
                     voteCount = details.voteCount,
                     starSize = 18,
                     ratingStyle = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Bold
                     ),
-                    voteCountStyle = MaterialTheme.typography.labelSmall,
+                    voteCountStyle = MaterialTheme.typography.labelSmall
                 )
                 GenreChipRow(details)
                 FavoriteButton(isFavorite = isFavorite, onToggleFavorite = onToggleFavorite)
@@ -266,28 +263,30 @@ private fun DetailsContent(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
                     text = stringResource(R.string.details_overview),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 details.tagline?.let { tagline ->
                     Text(
                         text = tagline,
                         style = MaterialTheme.typography.bodyMedium,
                         fontStyle = FontStyle.Italic,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Text(
-                    text = details.overview.ifBlank { stringResource(R.string.details_no_overview) },
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = details.overview.ifBlank {
+                        stringResource(R.string.details_no_overview)
+                    },
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -304,7 +303,7 @@ private fun GenreChipRow(details: MovieDetails) {
     if (details.genres.isEmpty()) return
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         details.genres.take(3).forEach { genre ->
             GenreChip(text = genre.name)
@@ -316,18 +315,18 @@ private fun GenreChipRow(details: MovieDetails) {
 private fun FactsCard(details: MovieDetails, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
         ) {
             Fact(
                 icon = { Icon(Icons.Filled.CalendarToday, contentDescription = null) },
                 label = stringResource(R.string.details_release_date),
                 value = details.releaseYear ?: "—",
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Fact(
                 icon = { Icon(Icons.Filled.Schedule, contentDescription = null) },
@@ -335,7 +334,7 @@ private fun FactsCard(details: MovieDetails, modifier: Modifier = Modifier) {
                 value = details.runtimeMinutes
                     ?.let { pluralStringResource(R.plurals.details_runtime_minutes, it, it) }
                     ?: "—",
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -346,11 +345,11 @@ private fun Fact(
     icon: @Composable () -> Unit,
     label: String,
     value: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         icon()
         // Label and value share the column to the right of the icon, so the value lines up
@@ -393,7 +392,7 @@ private val previewDetails = MovieDetails(
     voteCount = 26000,
     releaseDate = "1994-09-23",
     runtimeMinutes = 142,
-    genres = listOf(Genre(id = 18, name = "Drama"), Genre(id = 80, name = "Crime")),
+    genres = listOf(Genre(id = 18, name = "Drama"), Genre(id = 80, name = "Crime"))
 )
 
 @Preview(name = "Loaded", showBackground = true)
@@ -404,7 +403,7 @@ private fun DetailsScreenLoadedPreview() {
             state = State(isLoading = false, details = previewDetails, isFavorite = true),
             message = null,
             onMessageShown = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
@@ -417,7 +416,7 @@ private fun DetailsScreenLoadingPreview() {
             state = State(isLoading = true),
             message = null,
             onMessageShown = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
@@ -430,8 +429,7 @@ private fun DetailsScreenErrorPreview() {
             state = State(isLoading = false, error = UiText.Dynamic("Couldn't load this movie")),
             message = null,
             onMessageShown = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
-

@@ -11,11 +11,8 @@ data class Movie(
     val title: String,
     val posterPath: String?,
     val rating: Double,
-    val genreNames: List<String> = emptyList(),
+    val genreNames: List<String> = emptyList()
 )
 
 /** A movie plus the only piece of state that is ours, not TMDB's. */
-data class MovieListItem(
-    val movie: Movie,
-    val isFavorite: Boolean,
-)
+data class MovieListItem(val movie: Movie, val isFavorite: Boolean)

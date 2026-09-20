@@ -25,7 +25,7 @@ object PopularContract {
         val error: UiText? = null,
         val appendError: UiText? = null,
         val page: Int = 0,
-        val endReached: Boolean = false,
+        val endReached: Boolean = false
     ) {
         val isEmpty: Boolean
             get() = items.isEmpty() && !isLoading && error == null
@@ -36,7 +36,11 @@ object PopularContract {
          * while appendError is still set.
          */
         val canLoadMore: Boolean
-            get() = !isLoading && !isLoadingMore && !endReached && appendError == null && items.isNotEmpty()
+            get() = !isLoading &&
+                !isLoadingMore &&
+                !endReached &&
+                appendError == null &&
+                items.isNotEmpty()
     }
 
     sealed interface Intent {
@@ -67,7 +71,7 @@ object PopularContract {
             val movies: List<Movie>,
             val page: Int,
             val endReached: Boolean,
-            val replace: Boolean,
+            val replace: Boolean
         ) : Change
         data class LoadFailed(val error: UiText, val isAppend: Boolean) : Change
         data class FavoritesUpdated(val ids: Set<Int>) : Change

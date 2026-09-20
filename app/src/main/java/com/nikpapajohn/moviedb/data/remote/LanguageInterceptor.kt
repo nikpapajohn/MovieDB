@@ -14,7 +14,7 @@ import okhttp3.Response
  * language instead of depending on whatever locale the JVM running them happens to have.
  */
 class LanguageInterceptor(
-    private val currentLanguage: () -> String = { languageForLocale(Locale.getDefault()) },
+    private val currentLanguage: () -> String = { languageForLocale(Locale.getDefault()) }
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {

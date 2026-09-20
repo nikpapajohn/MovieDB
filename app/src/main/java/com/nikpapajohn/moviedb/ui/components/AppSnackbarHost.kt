@@ -24,7 +24,7 @@ fun AppSnackbarHost(hostState: SnackbarHostState) {
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     SnackbarHost(
         hostState = hostState,
-        modifier = if (isLandscape) Modifier.widthIn(max = LANDSCAPE_MAX_WIDTH) else Modifier,
+        modifier = if (isLandscape) Modifier.widthIn(max = LANDSCAPE_MAX_WIDTH) else Modifier
     )
 }
 

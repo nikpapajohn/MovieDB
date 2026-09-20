@@ -30,7 +30,7 @@ fun RatingRow(
     voteCount: Int? = null,
     starSize: Int = 18,
     ratingStyle: TextStyle = MaterialTheme.typography.titleSmall,
-    voteCountStyle: TextStyle = MaterialTheme.typography.labelSmall,
+    voteCountStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
     val formatted = String.format(Locale.getDefault(), "%.1f", rating)
     val votes = voteCount?.takeIf { it > 0 }
@@ -42,33 +42,33 @@ fun RatingRow(
         stringResource(
             R.string.cd_rating_with_votes,
             formatted,
-            pluralStringResource(R.plurals.cd_votes, votes, formatVotes(votes)),
+            pluralStringResource(R.plurals.cd_votes, votes, formatVotes(votes))
         )
     }
     Row(
         modifier = modifier.clearAndSetSemantics { contentDescription = description },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Icon(
             imageVector = Icons.Filled.Star,
             contentDescription = null,
             tint = RatingAmber,
-            modifier = Modifier.size(starSize.dp),
+            modifier = Modifier.size(starSize.dp)
         )
         // Baseline alignment, not centre: the vote count has to sit on the same line as the
         // rating even though it is several sizes smaller.
         Text(
             text = formatted,
             style = ratingStyle,
-            modifier = Modifier.alignByBaseline(),
+            modifier = Modifier.alignByBaseline()
         )
         if (votes != null) {
             Text(
                 text = pluralStringResource(R.plurals.details_votes, votes, formatVotes(votes)),
                 style = voteCountStyle,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.alignByBaseline(),
+                modifier = Modifier.alignByBaseline()
             )
         }
     }

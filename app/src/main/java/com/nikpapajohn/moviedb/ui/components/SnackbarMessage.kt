@@ -49,11 +49,7 @@ fun rememberSnackbarController(): SnackbarController = remember { SnackbarContro
  * the ViewModel without pushing snackbar plumbing into every screen.
  */
 @Composable
-fun SnackbarMessage(
-    message: SnackbarRequest?,
-    hostState: SnackbarHostState,
-    onShown: () -> Unit,
-) {
+fun SnackbarMessage(message: SnackbarRequest?, hostState: SnackbarHostState, onShown: () -> Unit) {
     val text = message?.text?.asString()
     // Keyed on the id, not the text. showSnackbar suspends until the snackbar is dismissed
     // and onShown only runs afterwards, so a second identical message arriving in the
@@ -78,7 +74,7 @@ private fun SnackbarMessagePreview() {
             SnackbarMessage(
                 message = SnackbarRequest(UiText.Dynamic("Αφαιρέθηκε από τα αγαπημένα"), id = 0),
                 hostState = hostState,
-                onShown = {},
+                onShown = {}
             )
         }
     }

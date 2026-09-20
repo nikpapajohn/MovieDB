@@ -12,6 +12,6 @@ val MovieDbTypography = Typography().let { base ->
     base.copy(
         titleLarge = base.titleLarge.copy(fontWeight = FontWeight.Bold),
         titleMedium = base.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-        bodyMedium = base.bodyMedium.copy(lineHeight = 22.sp),
+        bodyMedium = base.bodyMedium.copy(lineHeight = 22.sp)
     )
 }

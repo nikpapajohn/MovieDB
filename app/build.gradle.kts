@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.ktlint)
 }
 
 /**
@@ -27,7 +28,7 @@ val tmdbToken: String = run {
 if (tmdbToken.isBlank()) {
     logger.warn(
         "TMDB_READ_ACCESS_TOKEN is not set: the app will build, but every TMDB request " +
-            "will come back 401. Add it to local.properties or set it in the environment.",
+            "will come back 401. Add it to local.properties or set it in the environment."
     )
 }
 
@@ -56,7 +57,10 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -82,6 +86,26 @@ android {
 
     testOptions {
         unitTests.isReturnDefaultValues = true
+    }
+
+    lint {
+        // abortOnError (real lint errors) is what actually gates the build. warningsAsErrors is
+        // deliberately left off: almost every warning lint reports today is dependency/AGP/Gradle
+        // "a newer version is available" noise (GradleDependency, NewerVersionAvailable,
+        // AndroidGradlePluginVersion), and failing CI on those would force major-version bumps
+        // (e.g. AGP 8→9, Kotlin 2.1→2.4) as a side effect of adding this gate, with no testing.
+        // That's a separate, deliberate upgrade decision, not a lint-gate concern.
+        abortOnError = true
+        checkDependencies = true
+    }
+}
+
+ktlint {
+    version.set("1.3.1")
+    android.set(true)
+    ignoreFailures.set(false)
+    filter {
+        exclude { it.file.path.contains("${File.separator}build${File.separator}") }
     }
 }
 
