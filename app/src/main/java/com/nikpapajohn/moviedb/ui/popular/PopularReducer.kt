@@ -4,10 +4,6 @@ import com.nikpapajohn.moviedb.domain.model.MovieListItem
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.Change
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.State
 
-/**
- * Pure state transitions: no coroutines, no Android, no mocks needed to test them.
- * Everything that decides what the screen looks like lives here.
- */
 object PopularReducer {
 
     fun reduce(state: State, change: Change): State = when (change) {

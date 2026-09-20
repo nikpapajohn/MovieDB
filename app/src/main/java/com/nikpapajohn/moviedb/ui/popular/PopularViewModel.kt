@@ -53,7 +53,6 @@ class PopularViewModel @Inject constructor(
         onIntent(Intent.Load)
     }
 
-    /** The single entry point from the UI. */
     fun onIntent(intent: Intent) {
         when (intent) {
             Intent.Load, Intent.Retry -> loadFirstPage(debounce = false)

@@ -3,7 +3,6 @@ package com.nikpapajohn.moviedb.ui.details
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Change
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.State
 
-/** Pure state transitions, in their own file like every other feature's reducer. */
 object DetailsReducer {
 
     fun reduce(state: State, change: Change): State = when (change) {
