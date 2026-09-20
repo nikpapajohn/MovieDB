@@ -80,9 +80,11 @@ class EncryptedFavoritesStoreTest {
         scopes.clear()
     }
 
-    private fun repository(store: DataStore<FavoritesData>) =
-        FavoritesRepositoryImpl(store,
-            FakeMovieRepository(), InstrumentedDispatcherProvider())
+    private fun repository(store: DataStore<FavoritesData>) = FavoritesRepositoryImpl(
+        store,
+        FakeMovieRepository(),
+        InstrumentedDispatcherProvider()
+    )
 
     /**
      * None of these tests exercise [FavoritesRepositoryImpl.refresh], the only method that
