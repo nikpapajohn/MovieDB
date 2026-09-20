@@ -2,9 +2,14 @@ package com.nikpapajohn.moviedb.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.DrawerValue
@@ -189,11 +194,18 @@ private fun AppDrawer(
     onTabClick: (BottomTab) -> Unit,
     onAboutClick: () -> Unit,
 ) {
-    ModalDrawerSheet {
+    // Drop the top inset here: ModalDrawerSheet otherwise reserves it with its own (light)
+    // container color, leaving a white strip above the header where every other screen's top
+    // bar draws the teal primary colour behind the transparent status bar. The header Column
+    // below applies that inset itself so its content still clears the status bar icons.
+    ModalDrawerSheet(
+        windowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Bottom + WindowInsetsSides.Start),
+    ) {
         Surface(color = MaterialTheme.colorScheme.primary) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars)
                     .padding(start = 24.dp, end = 24.dp, top = 32.dp, bottom = 20.dp),
             ) {
                 Text(

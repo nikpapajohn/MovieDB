@@ -223,15 +223,18 @@ private fun DetailsContent(
                 contentDescription = stringResource(R.string.cd_poster, details.title),
                 modifier = Modifier
                     .width(150.dp)
-                    .height(225.dp),
+                    .height(260.dp),
             )
             Column(
                 // Matches the poster's height so the row's content spreads across it instead
                 // of clumping at the top: title lower, rating near the poster's middle, chips
                 // and the favorite button carried down toward its bottom edge, like the mock.
+                // Taller than the strict minimum so a wrapped title/genre row or a two-line
+                // favorite button label doesn't push the button past the bottom edge and
+                // clip it.
                 modifier = Modifier
                     .weight(1f)
-                    .height(225.dp),
+                    .height(260.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 // An empty first item so SpaceBetween's even gaps include one above the
