@@ -26,6 +26,8 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
 
     private val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
 
+    private var cachedKey: SecretKey? = null
+
     override fun encrypt(plain: ByteArray): ByteArray {
         val cipher = Cipher.getInstance(TRANSFORMATION).apply { init(Cipher.ENCRYPT_MODE, secretKey()) }
         val iv = cipher.iv
@@ -61,7 +63,14 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
         }
     }
 
-    private fun secretKey(): SecretKey =
+    // Synchronized: two callers racing on first use would each generate a key under the
+    // same alias, the second replacing the first, and whatever the first had already
+    // encrypted would no longer decrypt. Cached too, so the keystore is not queried on
+    // every single encrypt and decrypt.
+    @Synchronized
+    private fun secretKey(): SecretKey = cachedKey ?: loadOrGenerateKey().also { cachedKey = it }
+
+    private fun loadOrGenerateKey(): SecretKey =
         (keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry)?.secretKey ?: generateKey()
 
     private fun generateKey(): SecretKey {
@@ -82,9 +91,11 @@ class KeystoreCryptoManager @Inject constructor() : CryptoManager {
         return generator.generateKey()
     }
 
+    @Synchronized
     private fun recreateKey() {
+        cachedKey = null
         runCatching { keyStore.deleteEntry(KEY_ALIAS) }
-        runCatching { generateKey() }
+        runCatching { cachedKey = generateKey() }
     }
 
     private companion object {

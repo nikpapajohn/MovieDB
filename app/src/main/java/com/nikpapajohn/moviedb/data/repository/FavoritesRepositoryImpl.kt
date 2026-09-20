@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 
 @Singleton
@@ -25,28 +27,35 @@ class FavoritesRepositoryImpl @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : FavoritesRepository {
 
+    private val refreshLimit = Semaphore(MAX_PARALLEL_REFRESH)
+
     override fun favoriteIds(): Flow<Set<Int>> =
         dataStore.data.map { data -> data.movies.map { it.id }.toSet() }.distinctUntilChanged()
 
     override fun favorites(): Flow<List<Movie>> =
         dataStore.data.map { data ->
             data.movies.sortedByDescending { it.addedAtEpochMillis }.map { it.toDomain() }
-        }
+        }.distinctUntilChanged()
 
     override fun isFavorite(movieId: Int): Flow<Boolean> =
         dataStore.data.map { data -> data.movies.any { it.id == movieId } }.distinctUntilChanged()
 
+    // "Was it already there?" is decided inside updateData, on that transaction's own
+    // snapshot. Reading it first would be a separate transaction: two toggles racing (a
+    // double tap, or the list and the details screen at once) would both see "not a
+    // favorite", both add, and both report that they added it. It also costs one decryption
+    // instead of two, since updateData already hands back the state it wrote.
     override suspend fun toggle(movie: Movie): Boolean = withContext(dispatchers.io) {
-        val wasFavorite = dataStore.data.first().movies.any { it.id == movie.id }
-        dataStore.updateData { current ->
+        val updated = dataStore.updateData { current ->
             val without = current.movies.filterNot { it.id == movie.id }
+            val wasFavorite = without.size != current.movies.size
             if (wasFavorite) {
                 current.copy(movies = without)
             } else {
                 current.copy(movies = without + movie.toFavorite(System.currentTimeMillis()))
             }
         }
-        !wasFavorite
+        updated.movies.any { it.id == movie.id }
     }
 
     override suspend fun clear() = withContext(dispatchers.io) {
@@ -60,15 +69,25 @@ class FavoritesRepositoryImpl @Inject constructor(
 
         // Parallel, not sequential: a dozen favorites should not mean a dozen round trips
         // back to back. A movie whose call fails just keeps its old cached snapshot.
+        // Capped, though: favorites are unbounded, and a few hundred of them would mean a
+        // few hundred simultaneous requests — past OkHttp's own dispatcher limit and well
+        // into TMDB rate limiting.
         val refreshed = current.map { favorite ->
             async {
-                movieRepository.movieDetails(favorite.id)
-                    .map { details -> details.toMovie().toFavorite(favorite.addedAtEpochMillis) }
-                    .getOrDefault(favorite)
+                refreshLimit.withPermit {
+                    movieRepository.movieDetails(favorite.id)
+                        .map { details -> details.toMovie().toFavorite(favorite.addedAtEpochMillis) }
+                        .getOrDefault(favorite)
+                }
             }
         }.awaitAll()
 
         dataStore.updateData { it.copy(movies = refreshed) }
         Unit
+    }
+
+    private companion object {
+        /** Enough to keep refresh quick, low enough to stay well inside TMDB's rate limit. */
+        const val MAX_PARALLEL_REFRESH = 6
     }
 }

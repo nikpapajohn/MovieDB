@@ -5,6 +5,7 @@ import androidx.datastore.core.Serializer
 import com.nikpapajohn.moviedb.data.local.crypto.CryptoManager
 import java.io.InputStream
 import java.io.OutputStream
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 
 /**
@@ -13,6 +14,9 @@ import kotlinx.serialization.json.Json
  */
 class EncryptedFavoritesSerializer(
     private val crypto: CryptoManager,
+    // Deliberately not the Json singleton from NetworkModule: that one is tuned for
+    // reading TMDB's payloads (explicitNulls, coerceInputValues), and this one defines an
+    // on-disk format. Sharing it would let a change made for the API rewrite stored files.
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : Serializer<FavoritesData> {
 
@@ -23,6 +27,11 @@ class EncryptedFavoritesSerializer(
         if (bytes.isEmpty()) return defaultValue
         return try {
             json.decodeFromString(FavoritesData.serializer(), crypto.decrypt(bytes).decodeToString())
+        } catch (e: CancellationException) {
+            // Never a CorruptionException: that hands the file to the ReplaceFileCorruption-
+            // Handler, which empties it. A cancelled read is not a damaged file, and must
+            // not cost the user their favorites.
+            throw e
         } catch (e: Exception) {
             // Handled by the ReplaceFileCorruptionHandler: the user loses favorites, the app does not crash.
             throw CorruptionException("Favorites could not be read", e)

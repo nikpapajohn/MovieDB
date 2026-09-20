@@ -44,6 +44,7 @@ data class GenreListDto(
 data class MovieDetailsDto(
     @SerialName("id") val id: Int,
     @SerialName("title") val title: String? = null,
+    @SerialName("original_title") val originalTitle: String? = null,
     @SerialName("tagline") val tagline: String? = null,
     @SerialName("overview") val overview: String? = null,
     @SerialName("poster_path") val posterPath: String? = null,

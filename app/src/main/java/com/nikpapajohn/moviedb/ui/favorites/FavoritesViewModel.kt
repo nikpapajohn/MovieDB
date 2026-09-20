@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.UiText
+import com.nikpapajohn.moviedb.core.safeCall
+import com.nikpapajohn.moviedb.core.toAppError
 import com.nikpapajohn.moviedb.domain.usecase.ObserveFavoritesUseCase
 import com.nikpapajohn.moviedb.domain.usecase.RefreshFavoritesUseCase
 import com.nikpapajohn.moviedb.domain.usecase.ToggleFavoriteUseCase
@@ -11,6 +13,7 @@ import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.Change
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.Effect
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.Intent
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.State
+import com.nikpapajohn.moviedb.ui.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -43,19 +46,34 @@ class FavoritesViewModel @Inject constructor(
         when (intent) {
             is Intent.MovieClicked -> emit(Effect.NavigateToDetails(intent.movieId))
 
+            // The message follows what the toggle actually did rather than assuming a
+            // removal: every row here starts out a favorite, but that is a property of the
+            // list at one moment, not a guarantee about the write that just happened.
             is Intent.FavoriteToggled -> viewModelScope.launch {
-                toggleFavorite(intent.movie)
-                emit(Effect.ShowMessage(UiText.res(R.string.message_removed_from_favorites)))
+                safeCall { toggleFavorite(intent.movie) }
+                    .onSuccess { isFavorite ->
+                        emit(
+                            Effect.ShowMessage(
+                                UiText.res(
+                                    if (isFavorite) R.string.message_added_to_favorites
+                                    else R.string.message_removed_from_favorites,
+                                ),
+                            ),
+                        )
+                    }
+                    .onFailure { emit(Effect.ShowMessage(it.toAppError().toUiText())) }
             }
 
             // Best-effort and silent: the cached snapshot is already on screen, this just
             // brings title/genres up to date with the current app language when possible.
-            Intent.Refresh -> viewModelScope.launch { runCatching { refreshFavorites() } }
+            // safeCall, not runCatching, so leaving the screen cancels it instead of being
+            // swallowed as a failure.
+            Intent.Refresh -> viewModelScope.launch { safeCall { refreshFavorites() } }
         }
     }
 
     private fun update(change: Change) {
-        _state.update { FavoritesContract.reduce(it, change) }
+        _state.update { FavoritesReducer.reduce(it, change) }
     }
 
     private fun emit(effect: Effect) {

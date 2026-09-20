@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStoreFile
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,24 +22,28 @@ import kotlinx.coroutines.SupervisorJob
 
 @Module
 @InstallIn(SingletonComponent::class)
-object StorageModule {
+abstract class StorageModule {
 
-    @Provides
+    // @Binds, not @Provides: KeystoreCryptoManager already has an @Inject constructor, so
+    // binding the interface to it generates less code than constructing it by hand.
+    @Binds
     @Singleton
-    fun provideCryptoManager(): CryptoManager = KeystoreCryptoManager()
+    abstract fun bindCryptoManager(impl: KeystoreCryptoManager): CryptoManager
 
-    @Provides
-    @Singleton
-    fun provideFavoritesDataStore(
-        @ApplicationContext context: Context,
-        crypto: CryptoManager,
-    ): DataStore<FavoritesData> = DataStoreFactory.create(
-        serializer = EncryptedFavoritesSerializer(crypto),
-        // A key that can no longer decrypt the file loses the favorites, but never crashes the app.
-        corruptionHandler = ReplaceFileCorruptionHandler { FavoritesData() },
-        scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-        produceFile = { context.dataStoreFile(FAVORITES_FILE) },
-    )
+    companion object {
+        @Provides
+        @Singleton
+        fun provideFavoritesDataStore(
+            @ApplicationContext context: Context,
+            crypto: CryptoManager,
+        ): DataStore<FavoritesData> = DataStoreFactory.create(
+            serializer = EncryptedFavoritesSerializer(crypto),
+            // A key that can no longer decrypt the file loses the favorites, but never crashes the app.
+            corruptionHandler = ReplaceFileCorruptionHandler { FavoritesData() },
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { context.dataStoreFile(FAVORITES_FILE) },
+        )
 
-    private const val FAVORITES_FILE = "favorites.enc"
+        private const val FAVORITES_FILE = "favorites.enc"
+    }
 }

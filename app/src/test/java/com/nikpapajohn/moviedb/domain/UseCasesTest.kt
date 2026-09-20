@@ -43,7 +43,6 @@ class UseCasesTest {
         tagline = null,
         overview = "First contact.",
         posterPath = "/p.jpg",
-        backdropPath = null,
         rating = 7.9,
         voteCount = 100,
         releaseDate = "2016-11-10",

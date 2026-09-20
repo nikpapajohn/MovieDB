@@ -1,10 +1,12 @@
 package com.nikpapajohn.moviedb.ui.details
 
+import androidx.compose.runtime.Immutable
 import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.domain.model.MovieDetails
 
 object DetailsContract {
 
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val details: MovieDetails? = null,
@@ -34,12 +36,5 @@ object DetailsContract {
         data class Loaded(val details: MovieDetails) : Change
         data class Failed(val error: UiText) : Change
         data class FavoriteUpdated(val isFavorite: Boolean) : Change
-    }
-
-    fun reduce(state: State, change: Change): State = when (change) {
-        Change.Loading -> state.copy(isLoading = true, error = null)
-        is Change.Loaded -> state.copy(isLoading = false, details = change.details, error = null)
-        is Change.Failed -> state.copy(isLoading = false, error = change.error)
-        is Change.FavoriteUpdated -> state.copy(isFavorite = change.isFavorite)
     }
 }

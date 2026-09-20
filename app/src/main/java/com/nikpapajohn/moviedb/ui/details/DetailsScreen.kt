@@ -22,7 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -67,6 +68,8 @@ import com.nikpapajohn.moviedb.ui.components.LoadingState
 import com.nikpapajohn.moviedb.ui.components.PosterImage
 import com.nikpapajohn.moviedb.ui.components.RatingRow
 import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
+import com.nikpapajohn.moviedb.ui.components.SnackbarRequest
+import com.nikpapajohn.moviedb.ui.components.rememberSnackbarController
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Effect
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.Intent
 import com.nikpapajohn.moviedb.ui.details.DetailsContract.State
@@ -79,13 +82,13 @@ fun DetailsRoute(
     viewModel: DetailsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var message by remember { mutableStateOf<UiText?>(null) }
+    val snackbar = rememberSnackbarController()
     val context = LocalContext.current
 
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {
             Effect.NavigateBack -> onNavigateBack()
-            is Effect.ShowMessage -> message = effect.text
+            is Effect.ShowMessage -> snackbar.show(effect.text)
             is Effect.ShareText -> context.shareText(effect.text)
             is Effect.OpenUrl -> context.openUrl(effect.url)
         }
@@ -93,8 +96,8 @@ fun DetailsRoute(
 
     DetailsScreen(
         state = state,
-        message = message,
-        onMessageShown = { message = null },
+        message = snackbar.current,
+        onMessageShown = snackbar::consume,
         onIntent = viewModel::onIntent,
     )
 }
@@ -103,7 +106,7 @@ fun DetailsRoute(
 @Composable
 fun DetailsScreen(
     state: State,
-    message: UiText?,
+    message: SnackbarRequest?,
     onMessageShown: () -> Unit,
     onIntent: (Intent) -> Unit,
 ) {
@@ -318,7 +321,7 @@ private fun FactsCard(details: MovieDetails, modifier: Modifier = Modifier) {
                 .padding(16.dp),
         ) {
             Fact(
-                icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = null) },
+                icon = { Icon(Icons.Filled.CalendarToday, contentDescription = null) },
                 label = stringResource(R.string.details_release_date),
                 value = details.releaseYear ?: "—",
                 modifier = Modifier.weight(1f),
@@ -327,7 +330,7 @@ private fun FactsCard(details: MovieDetails, modifier: Modifier = Modifier) {
                 icon = { Icon(Icons.Filled.Schedule, contentDescription = null) },
                 label = stringResource(R.string.details_runtime),
                 value = details.runtimeMinutes
-                    ?.let { stringResource(R.string.details_runtime_minutes, it) }
+                    ?.let { pluralStringResource(R.plurals.details_runtime_minutes, it, it) }
                     ?: "—",
                 modifier = Modifier.weight(1f),
             )
@@ -383,7 +386,6 @@ private val previewDetails = MovieDetails(
     overview = "Two imprisoned men bond over a number of years, finding solace and " +
         "eventual redemption through acts of common decency.",
     posterPath = null,
-    backdropPath = null,
     rating = 8.7,
     voteCount = 26000,
     releaseDate = "1994-09-23",

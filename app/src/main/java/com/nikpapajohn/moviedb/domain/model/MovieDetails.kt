@@ -1,21 +1,16 @@
 package com.nikpapajohn.moviedb.domain.model
 
-import androidx.compose.runtime.Immutable
-
-@Immutable
 data class Genre(
     val id: Int,
     val name: String,
 )
 
-@Immutable
 data class MovieDetails(
     val id: Int,
     val title: String,
     val tagline: String?,
     val overview: String,
     val posterPath: String?,
-    val backdropPath: String?,
     val rating: Double,
     val voteCount: Int,
     /** ISO date as TMDB sends it; may be null or blank for unreleased entries. */

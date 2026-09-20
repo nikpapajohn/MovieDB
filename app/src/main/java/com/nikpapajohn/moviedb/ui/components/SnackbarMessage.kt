@@ -4,12 +4,45 @@ import android.annotation.SuppressLint
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.ui.asString
 import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
+
+/**
+ * One request to show a snackbar. The [id] is what makes it an event rather than a value:
+ * favoriting and unfavoriting the same movie twice produces two identical texts, and
+ * without an identity of its own the second one would look like the first and be dropped.
+ */
+@Immutable
+data class SnackbarRequest(val text: UiText, val id: Long)
+
+/** Hands out [SnackbarRequest]s with increasing ids, so no two are ever equal. */
+@Stable
+class SnackbarController {
+    var current by mutableStateOf<SnackbarRequest?>(null)
+        private set
+
+    private var nextId = 0L
+
+    fun show(text: UiText) {
+        current = SnackbarRequest(text, nextId++)
+    }
+
+    fun consume() {
+        current = null
+    }
+}
+
+@Composable
+fun rememberSnackbarController(): SnackbarController = remember { SnackbarController() }
 
 /**
  * Resolves a UiText inside composition and shows it once. Keeps string resources out of
@@ -17,12 +50,15 @@ import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
  */
 @Composable
 fun SnackbarMessage(
-    message: UiText?,
+    message: SnackbarRequest?,
     hostState: SnackbarHostState,
     onShown: () -> Unit,
 ) {
-    val text = message?.asString()
-    LaunchedEffect(text) {
+    val text = message?.text?.asString()
+    // Keyed on the id, not the text. showSnackbar suspends until the snackbar is dismissed
+    // and onShown only runs afterwards, so a second identical message arriving in the
+    // meantime would leave the key unchanged and never be shown at all.
+    LaunchedEffect(message?.id) {
         if (text != null) {
             hostState.showSnackbar(text)
             onShown()
@@ -40,7 +76,7 @@ private fun SnackbarMessagePreview() {
     MovieDbTheme {
         Scaffold(snackbarHost = { AppSnackbarHost(hostState) }) { _ ->
             SnackbarMessage(
-                message = UiText.Dynamic("Αφαιρέθηκε από τα αγαπημένα"),
+                message = SnackbarRequest(UiText.Dynamic("Αφαιρέθηκε από τα αγαπημένα"), id = 0),
                 hostState = hostState,
                 onShown = {},
             )

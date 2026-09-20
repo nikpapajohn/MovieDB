@@ -24,6 +24,13 @@ val tmdbToken: String = run {
     fromProps ?: System.getenv("TMDB_READ_ACCESS_TOKEN") ?: ""
 }
 
+if (tmdbToken.isBlank()) {
+    logger.warn(
+        "TMDB_READ_ACCESS_TOKEN is not set: the app will build, but every TMDB request " +
+            "will come back 401. Add it to local.properties or set it in the environment.",
+    )
+}
+
 android {
     namespace = "com.nikpapajohn.moviedb"
     compileSdk = 35
@@ -83,6 +90,7 @@ android {
 // recomposition for) and build/compose_metrics has raw recomposition-group counts. Neither
 // runs the app — it is a static compile-time report, read after ./gradlew assembleDebug.
 composeCompiler {
+    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("compose_stability.conf")
     metricsDestination = layout.buildDirectory.dir("compose_metrics")
     reportsDestination = layout.buildDirectory.dir("compose_reports")
 }

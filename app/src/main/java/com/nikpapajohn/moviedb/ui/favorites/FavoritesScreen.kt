@@ -22,11 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nikpapajohn.moviedb.R
-import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.domain.model.Movie
 import com.nikpapajohn.moviedb.domain.model.MovieListItem
 import com.nikpapajohn.moviedb.ui.ObserveEffects
@@ -42,6 +39,8 @@ import com.nikpapajohn.moviedb.ui.components.EmptyState
 import com.nikpapajohn.moviedb.ui.components.MovieCard
 import com.nikpapajohn.moviedb.ui.components.AppSnackbarHost
 import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
+import com.nikpapajohn.moviedb.ui.components.SnackbarRequest
+import com.nikpapajohn.moviedb.ui.components.rememberSnackbarController
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.Effect
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.Intent
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.State
@@ -54,7 +53,7 @@ fun FavoritesRoute(
     viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var message by remember { mutableStateOf<UiText?>(null) }
+    val snackbar = rememberSnackbarController()
 
     // The cached snapshot renders instantly (offline-first); this quietly brings titles and
     // genres up to date whenever the screen is freshly composed — including right after a
@@ -64,14 +63,14 @@ fun FavoritesRoute(
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {
             is Effect.NavigateToDetails -> onNavigateToDetails(effect.movieId)
-            is Effect.ShowMessage -> message = effect.text
+            is Effect.ShowMessage -> snackbar.show(effect.text)
         }
     }
 
     FavoritesScreen(
         state = state,
-        message = message,
-        onMessageShown = { message = null },
+        message = snackbar.current,
+        onMessageShown = snackbar::consume,
         onMenuClick = onMenuClick,
         onIntent = viewModel::onIntent,
     )
@@ -81,7 +80,7 @@ fun FavoritesRoute(
 @Composable
 fun FavoritesScreen(
     state: State,
-    message: UiText?,
+    message: SnackbarRequest?,
     onMessageShown: () -> Unit,
     onMenuClick: () -> Unit,
     onIntent: (Intent) -> Unit,

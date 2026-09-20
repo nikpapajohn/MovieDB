@@ -1,14 +1,11 @@
 package com.nikpapajohn.moviedb.domain.model
 
-import androidx.compose.runtime.Immutable
-
-// @Immutable is a Compose-runtime annotation living in the domain layer, which otherwise
-// knows nothing about UI. Trade-off accepted deliberately: without it, the List field below
-// makes the compiler treat this class as unstable, and every MovieCard/MovieList composable
-// that takes one falls back to reference-identity skipping instead of real equality checks.
+// These used to carry @Immutable so that the Compose compiler would treat them as stable
+// despite their List fields. That put an androidx dependency in the one layer that is meant
+// to have none. compose_stability.conf at the repo root now says the same thing from the
+// outside, leaving these as plain Kotlin.
 
 /** A movie as the list screen needs it. Nothing here knows about TMDB or Retrofit. */
-@Immutable
 data class Movie(
     val id: Int,
     val title: String,
@@ -18,7 +15,6 @@ data class Movie(
 )
 
 /** A movie plus the only piece of state that is ours, not TMDB's. */
-@Immutable
 data class MovieListItem(
     val movie: Movie,
     val isFavorite: Boolean,

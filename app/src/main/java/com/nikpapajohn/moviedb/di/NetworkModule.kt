@@ -44,6 +44,9 @@ object NetworkModule {
             .addInterceptor(logging)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
+            // connect/read bound each phase; callTimeout is the only one that bounds the
+            // request as a whole, including redirects and retries.
+            .callTimeout(45, TimeUnit.SECONDS)
             .build()
     }
 

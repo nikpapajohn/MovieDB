@@ -1,5 +1,6 @@
 package com.nikpapajohn.moviedb.data.remote
 
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.sync.Mutex
@@ -16,6 +17,7 @@ class GenreCache @Inject constructor(
 ) {
     private val mutex = Mutex()
     private var cache: Map<Int, String>? = null
+    private var cachedLanguage: String? = null
 
     suspend fun namesFor(ids: List<Int>?): List<String> {
         if (ids.isNullOrEmpty()) return emptyList()
@@ -24,11 +26,25 @@ class GenreCache @Inject constructor(
     }
 
     private suspend fun genres(): Map<Int, String> {
-        cache?.let { return it }
+        // genre/movie/list comes back translated, because LanguageInterceptor puts the
+        // current language on every request. Caching the names without the language they
+        // were fetched in would keep the old ones for the life of the process — exactly
+        // the staleness that interceptor exists to avoid.
+        val language = languageForLocale(Locale.getDefault())
+        cachedFor(language)?.let { return it }
         return mutex.withLock {
-            cache ?: runCatching { api.movieGenres().genres.associate { it.id to it.name } }
-                .getOrDefault(emptyMap())
-                .also { if (it.isNotEmpty()) cache = it }
+            cachedFor(language)
+                ?: runCatching { api.movieGenres().genres.associate { it.id to it.name } }
+                    .getOrDefault(emptyMap())
+                    .also {
+                        if (it.isNotEmpty()) {
+                            cache = it
+                            cachedLanguage = language
+                        }
+                    }
         }
     }
+
+    private fun cachedFor(language: String): Map<Int, String>? =
+        cache?.takeIf { cachedLanguage == language }
 }
