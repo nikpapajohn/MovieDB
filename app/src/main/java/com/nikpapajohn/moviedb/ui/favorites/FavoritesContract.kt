@@ -16,6 +16,9 @@ object FavoritesContract {
     sealed interface Intent {
         data class MovieClicked(val movieId: Int) : Intent
         data class FavoriteToggled(val movie: Movie) : Intent
+
+        /** Re-syncs title/genres with the current app language. Silent: no loading state. */
+        data object Refresh : Intent
     }
 
     sealed interface Effect {

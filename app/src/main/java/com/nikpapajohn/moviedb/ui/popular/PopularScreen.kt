@@ -87,6 +87,20 @@ fun PopularRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var message by remember { mutableStateOf<UiText?>(null) }
 
+    // A system language change recreates the Activity, but the ViewModel (and its
+    // already-loaded, now stale-language page) survives that recreation — its own init
+    // block only runs once. Re-fetch page 1 whenever the resolved locale actually changes,
+    // skipping the very first composition so app startup does not double-fetch.
+    val locale = LocalConfiguration.current.locales[0]
+    var isFirstLocale by remember { mutableStateOf(true) }
+    LaunchedEffect(locale) {
+        if (isFirstLocale) {
+            isFirstLocale = false
+        } else {
+            viewModel.onIntent(Intent.Retry)
+        }
+    }
+
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {
             is Effect.NavigateToDetails -> onNavigateToDetails(effect.movieId)

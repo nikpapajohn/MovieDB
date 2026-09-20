@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +55,11 @@ fun FavoritesRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var message by remember { mutableStateOf<UiText?>(null) }
+
+    // The cached snapshot renders instantly (offline-first); this quietly brings titles and
+    // genres up to date whenever the screen is freshly composed — including right after a
+    // system language change, which recreates the Activity but not the ViewModel.
+    LaunchedEffect(Unit) { viewModel.onIntent(Intent.Refresh) }
 
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {

@@ -16,4 +16,11 @@ interface FavoritesRepository {
     suspend fun toggle(movie: Movie): Boolean
 
     suspend fun clear()
+
+    /**
+     * Re-fetches title/genres for every stored favorite in the current app language and
+     * overwrites the local snapshot. Best-effort: a movie whose call fails (no network,
+     * TMDB error) simply keeps its previously cached snapshot.
+     */
+    suspend fun refresh()
 }

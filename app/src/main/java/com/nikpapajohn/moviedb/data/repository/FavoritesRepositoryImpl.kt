@@ -7,8 +7,11 @@ import com.nikpapajohn.moviedb.data.local.favorites.toDomain
 import com.nikpapajohn.moviedb.data.local.favorites.toFavorite
 import com.nikpapajohn.moviedb.domain.model.Movie
 import com.nikpapajohn.moviedb.domain.repository.FavoritesRepository
+import com.nikpapajohn.moviedb.domain.repository.MovieRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -18,6 +21,7 @@ import kotlinx.coroutines.withContext
 @Singleton
 class FavoritesRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<FavoritesData>,
+    private val movieRepository: MovieRepository,
     private val dispatchers: DispatcherProvider,
 ) : FavoritesRepository {
 
@@ -47,6 +51,24 @@ class FavoritesRepositoryImpl @Inject constructor(
 
     override suspend fun clear() = withContext(dispatchers.io) {
         dataStore.updateData { FavoritesData() }
+        Unit
+    }
+
+    override suspend fun refresh() = withContext(dispatchers.io) {
+        val current = dataStore.data.first().movies
+        if (current.isEmpty()) return@withContext
+
+        // Parallel, not sequential: a dozen favorites should not mean a dozen round trips
+        // back to back. A movie whose call fails just keeps its old cached snapshot.
+        val refreshed = current.map { favorite ->
+            async {
+                movieRepository.movieDetails(favorite.id)
+                    .map { details -> details.toMovie().toFavorite(favorite.addedAtEpochMillis) }
+                    .getOrDefault(favorite)
+            }
+        }.awaitAll()
+
+        dataStore.updateData { it.copy(movies = refreshed) }
         Unit
     }
 }

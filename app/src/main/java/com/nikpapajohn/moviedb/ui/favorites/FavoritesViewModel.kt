@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.domain.usecase.ObserveFavoritesUseCase
+import com.nikpapajohn.moviedb.domain.usecase.RefreshFavoritesUseCase
 import com.nikpapajohn.moviedb.domain.usecase.ToggleFavoriteUseCase
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.Change
 import com.nikpapajohn.moviedb.ui.favorites.FavoritesContract.Effect
@@ -23,6 +24,7 @@ import kotlinx.coroutines.launch
 class FavoritesViewModel @Inject constructor(
     observeFavorites: ObserveFavoritesUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
+    private val refreshFavorites: RefreshFavoritesUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -45,6 +47,10 @@ class FavoritesViewModel @Inject constructor(
                 toggleFavorite(intent.movie)
                 emit(Effect.ShowMessage(UiText.res(R.string.message_removed_from_favorites)))
             }
+
+            // Best-effort and silent: the cached snapshot is already on screen, this just
+            // brings title/genres up to date with the current app language when possible.
+            Intent.Refresh -> viewModelScope.launch { runCatching { refreshFavorites() } }
         }
     }
 

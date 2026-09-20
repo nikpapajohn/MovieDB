@@ -57,3 +57,9 @@ class ClearFavoritesUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() = repository.clear()
 }
+
+class RefreshFavoritesUseCase @Inject constructor(
+    private val repository: FavoritesRepository,
+) {
+    suspend operator fun invoke() = repository.refresh()
+}
