@@ -10,6 +10,9 @@ import com.nikpapajohn.moviedb.data.local.favorites.EncryptedFavoritesSerializer
 import com.nikpapajohn.moviedb.data.local.favorites.FavoritesData
 import com.nikpapajohn.moviedb.data.repository.FavoritesRepositoryImpl
 import com.nikpapajohn.moviedb.domain.model.Movie
+import com.nikpapajohn.moviedb.domain.model.MovieDetails
+import com.nikpapajohn.moviedb.domain.model.MoviePage
+import com.nikpapajohn.moviedb.domain.repository.MovieRepository
 import com.nikpapajohn.moviedb.util.InstrumentedDispatcherProvider
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -78,7 +81,23 @@ class EncryptedFavoritesStoreTest {
     }
 
     private fun repository(store: DataStore<FavoritesData>) =
-        FavoritesRepositoryImpl(store, InstrumentedDispatcherProvider())
+        FavoritesRepositoryImpl(store,
+            FakeMovieRepository(), InstrumentedDispatcherProvider())
+
+    /**
+     * None of these tests exercise [FavoritesRepositoryImpl.refresh], the only method that
+     * calls through to [MovieRepository] — so a fake that is never invoked is enough here.
+     */
+    private class FakeMovieRepository : MovieRepository {
+        override suspend fun popularMovies(page: Int): Result<MoviePage> =
+            Result.failure(UnsupportedOperationException())
+
+        override suspend fun searchMovies(query: String, page: Int): Result<MoviePage> =
+            Result.failure(UnsupportedOperationException())
+
+        override suspend fun movieDetails(movieId: Int): Result<MovieDetails> =
+            Result.failure(UnsupportedOperationException())
+    }
 
     @Test
     fun toggle_adds_then_removes_the_movie() = runTest {
