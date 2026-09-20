@@ -82,10 +82,11 @@ reducer, so adopting it would mean MVI everywhere except the main screen: part o
 state in `State`, part in a separate flow, and `LazyPagingItems` inside the composable.
 
 Pagination here is therefore explicit: `page`, `endReached`, `isLoadingMore` and the loaded
-items are ordinary fields, `Intent.LoadNextPage` fires when the last row appears, and the
-reducer merges pages and drops the duplicates TMDB returns when its ranking shifts between
-requests. The cost is roughly forty lines; the gain is one coherent state per screen and
-tests that need no extra artifact.
+items are ordinary fields, `Intent.LoadNextPage` fires a couple of rows before the list
+actually runs out (`PREFETCH_DISTANCE` in `PopularScreen.kt`), and the reducer merges pages
+and drops the duplicates TMDB returns when its ranking shifts between requests. The cost is
+roughly forty lines; the gain is one coherent state per screen and tests that need no extra
+artifact.
 
 If the list became database-backed, needed offline caching or grew to thousands of rows,
 `RemoteMediator` and Paging 3 would earn their place and the trade-off would flip.
