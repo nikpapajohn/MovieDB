@@ -17,16 +17,16 @@ class GenreCache @Inject constructor(
     private val mutex = Mutex()
     private var cache: Map<Int, String>? = null
 
-    suspend fun namesFor(ids: List<Int>?, language: String): List<String> {
+    suspend fun namesFor(ids: List<Int>?): List<String> {
         if (ids.isNullOrEmpty()) return emptyList()
-        val map = genres(language)
+        val map = genres()
         return ids.mapNotNull { map[it] }
     }
 
-    private suspend fun genres(language: String): Map<Int, String> {
+    private suspend fun genres(): Map<Int, String> {
         cache?.let { return it }
         return mutex.withLock {
-            cache ?: runCatching { api.movieGenres(language).genres.associate { it.id to it.name } }
+            cache ?: runCatching { api.movieGenres().genres.associate { it.id to it.name } }
                 .getOrDefault(emptyMap())
                 .also { if (it.isNotEmpty()) cache = it }
         }

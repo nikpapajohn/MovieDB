@@ -22,9 +22,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nikpapajohn.moviedb.BuildConfig
 import com.nikpapajohn.moviedb.R
+import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 
 /**
  * Static screen, so it has no contract and no ViewModel: there is no state to reduce and
@@ -39,6 +41,8 @@ fun AboutRoute(onNavigateBack: () -> Unit) {
 @Composable
 fun AboutScreen(onNavigateBack: () -> Unit) {
     Scaffold(
+        // Full-screen destination: there is no app bottom bar under it, so this screen owns
+        // the bottom inset too. Without it the snackbar lands under the navigation buttons.
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
@@ -86,11 +90,20 @@ fun AboutScreen(onNavigateBack: () -> Unit) {
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
 
+            // Required by the TMDB API terms of use, in the wording they ask for.
             Text(
                 text = stringResource(R.string.profile_attribution),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AboutScreenPreview() {
+    MovieDbTheme {
+        AboutScreen(onNavigateBack = {})
     }
 }

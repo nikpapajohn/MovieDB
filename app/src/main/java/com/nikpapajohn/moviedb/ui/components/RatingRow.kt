@@ -15,8 +15,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nikpapajohn.moviedb.R
+import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 import com.nikpapajohn.moviedb.ui.theme.RatingAmber
 import java.util.Locale
 
@@ -42,6 +44,8 @@ fun RatingRow(
             tint = RatingAmber,
             modifier = Modifier.size(starSize.dp),
         )
+        // Baseline alignment, not centre: the vote count has to sit on the same line as the
+        // rating even though it is several sizes smaller.
         Text(
             text = formatted,
             style = ratingStyle,
@@ -60,3 +64,19 @@ fun RatingRow(
 
 private fun formatVotes(count: Int): String =
     java.text.NumberFormat.getIntegerInstance(Locale.getDefault()).format(count)
+
+@Preview(name = "Rating only", showBackground = true)
+@Composable
+private fun RatingRowPreview() {
+    MovieDbTheme {
+        RatingRow(rating = 8.7)
+    }
+}
+
+@Preview(name = "With vote count", showBackground = true)
+@Composable
+private fun RatingRowWithVotesPreview() {
+    MovieDbTheme {
+        RatingRow(rating = 8.7, voteCount = 26000, starSize = 18)
+    }
+}

@@ -4,15 +4,14 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.nikpapajohn.moviedb.core.AppError
 import com.nikpapajohn.moviedb.core.toAppError
 import com.nikpapajohn.moviedb.data.remote.GenreCache
+import com.nikpapajohn.moviedb.data.remote.LanguageInterceptor
 import com.nikpapajohn.moviedb.data.remote.TmdbApi
 import com.nikpapajohn.moviedb.data.repository.MovieRepositoryImpl
-import com.nikpapajohn.moviedb.util.TestDispatcherProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -35,8 +34,14 @@ class MovieRepositoryImplTest {
     fun setUp() {
         server = MockWebServer()
         server.start()
+        // Pinned instead of the real device locale, so this test does not depend on
+        // whatever default locale happens to be set on the machine running it.
+        val client = OkHttpClient.Builder()
+            .addInterceptor(LanguageInterceptor(currentLanguage = { "en-US" }))
+            .build()
         api = Retrofit.Builder()
             .baseUrl(server.url("/"))
+            .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(TmdbApi::class.java)
@@ -47,16 +52,9 @@ class MovieRepositoryImplTest {
         server.shutdown()
     }
 
-    /**
-     * Built inside the test so the repository's dispatcher shares runTest's scheduler.
-     * A TestDispatcher created outside runTest brings its own scheduler, and the two
-     * clash the moment the repository calls withContext.
-     */
-    private fun TestScope.repository() = MovieRepositoryImpl(
+    private fun repository() = MovieRepositoryImpl(
         api = api,
         genreCache = GenreCache(api),
-        dispatchers = TestDispatcherProvider(StandardTestDispatcher(testScheduler)),
-        language = "en-US",
     )
 
     @Test

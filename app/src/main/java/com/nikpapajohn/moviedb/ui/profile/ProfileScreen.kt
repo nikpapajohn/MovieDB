@@ -19,7 +19,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -31,16 +30,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.ui.ObserveEffects
+import com.nikpapajohn.moviedb.ui.components.AppSnackbarHost
 import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.Effect
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.Intent
 import com.nikpapajohn.moviedb.ui.profile.ProfileContract.State
+import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 
 @Composable
 fun ProfileRoute(
@@ -78,7 +80,7 @@ fun ProfileScreen(
     SnackbarMessage(message = message, hostState = snackbarHostState, onShown = onMessageShown)
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { AppSnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.safeDrawing
             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
         topBar = {
@@ -138,6 +140,34 @@ fun ProfileScreen(
             }
 
         }
+    }
+}
+
+@Preview(name = "With favorites", showBackground = true)
+@Composable
+private fun ProfileScreenPreview() {
+    MovieDbTheme {
+        ProfileScreen(
+            state = State(favoritesCount = 12),
+            message = null,
+            onMessageShown = {},
+            onMenuClick = {},
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(name = "No favorites", showBackground = true)
+@Composable
+private fun ProfileScreenEmptyPreview() {
+    MovieDbTheme {
+        ProfileScreen(
+            state = State(favoritesCount = 0),
+            message = null,
+            onMessageShown = {},
+            onMenuClick = {},
+            onIntent = {},
+        )
     }
 }
 

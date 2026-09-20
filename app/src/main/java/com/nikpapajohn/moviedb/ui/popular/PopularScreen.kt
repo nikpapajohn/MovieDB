@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -12,10 +13,13 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
@@ -32,7 +36,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,14 +49,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.UiText
+import com.nikpapajohn.moviedb.domain.model.Movie
+import com.nikpapajohn.moviedb.domain.model.MovieListItem
 import com.nikpapajohn.moviedb.ui.ObserveEffects
+import com.nikpapajohn.moviedb.ui.components.AppSnackbarHost
 import com.nikpapajohn.moviedb.ui.components.ErrorState
 import com.nikpapajohn.moviedb.ui.components.LoadingState
 import com.nikpapajohn.moviedb.ui.components.MovieCard
@@ -61,6 +74,7 @@ import com.nikpapajohn.moviedb.ui.components.SnackbarMessage
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.Effect
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.Intent
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.State
+import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 
 @Composable
 fun PopularRoute(
@@ -91,7 +105,7 @@ fun PopularRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun PopularScreen(
     state: State,
@@ -105,10 +119,34 @@ fun PopularScreen(
     var menuExpanded by remember { mutableStateOf(false) }
     val isLandscape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val searchFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    var isSearchFieldFocused by remember { mutableStateOf(false) }
     SnackbarMessage(message = message, hostState = snackbarHostState, onShown = onMessageShown)
 
+    // Tapping the search icon reveals the field; it should also grab focus and raise the
+    // keyboard right away instead of leaving the user to tap it a second time.
+    LaunchedEffect(state.isSearchVisible) {
+        if (state.isSearchVisible) {
+            searchFocusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
+
+    // The keyboard's own check/search action hides the keyboard AND clears focus (handled
+    // where the field is declared). The Android back button only hides the keyboard — it
+    // never calls onSearch — which left the field looking "active" with no visible keyboard.
+    // isImeVisible catches both paths, so back gets the same clear-focus behaviour for free.
+    val imeVisible = WindowInsets.isImeVisible
+    LaunchedEffect(imeVisible) {
+        if (!imeVisible && isSearchFieldFocused) {
+            focusManager.clearFocus()
+        }
+    }
+
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { AppSnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.safeDrawing
             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
         topBar = {
@@ -196,9 +234,20 @@ fun PopularScreen(
                     onValueChange = { onIntent(Intent.QueryChanged(it)) },
                     singleLine = true,
                     placeholder = { Text(stringResource(R.string.search_hint)) },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        // The keyboard's own check/search action: dismiss the keyboard and
+                        // drop focus, rather than leaving the field looking still "active".
+                        onSearch = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        },
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .focusRequester(searchFocusRequester)
+                        .onFocusChanged { isSearchFieldFocused = it.isFocused },
                 )
             } else if (!isLandscape) {
                 // In landscape the welcome block would eat most of the visible list.
@@ -300,5 +349,80 @@ private fun MovieList(
                 ErrorState(message = error, onRetry = { onIntent(Intent.LoadNextPage) })
             }
         }
+    }
+}
+
+private val previewMovies = listOf(
+    MovieListItem(
+        movie = Movie(id = 1, title = "The Shawshank Redemption", posterPath = null, rating = 8.7, genreNames = listOf("Drama")),
+        isFavorite = true,
+    ),
+    MovieListItem(
+        movie = Movie(id = 2, title = "The Godfather", posterPath = null, rating = 8.7, genreNames = listOf("Crime", "Drama")),
+        isFavorite = false,
+    ),
+    MovieListItem(
+        movie = Movie(id = 3, title = "The Dark Knight", posterPath = null, rating = 8.5, genreNames = listOf("Action")),
+        isFavorite = false,
+    ),
+)
+
+@Preview(name = "Popular list", showBackground = true)
+@Composable
+private fun PopularScreenPreview() {
+    MovieDbTheme {
+        PopularScreen(
+            state = State(items = previewMovies, isLoading = false),
+            message = null,
+            onMessageShown = {},
+            onMenuClick = {},
+            onAboutClick = {},
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(name = "Search", showBackground = true)
+@Composable
+private fun PopularScreenSearchPreview() {
+    MovieDbTheme {
+        PopularScreen(
+            state = State(items = previewMovies, isLoading = false, isSearchVisible = true, query = "dark"),
+            message = null,
+            onMessageShown = {},
+            onMenuClick = {},
+            onAboutClick = {},
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(name = "Loading", showBackground = true)
+@Composable
+private fun PopularScreenLoadingPreview() {
+    MovieDbTheme {
+        PopularScreen(
+            state = State(isLoading = true),
+            message = null,
+            onMessageShown = {},
+            onMenuClick = {},
+            onAboutClick = {},
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(name = "Error", showBackground = true)
+@Composable
+private fun PopularScreenErrorPreview() {
+    MovieDbTheme {
+        PopularScreen(
+            state = State(isLoading = false, error = UiText.Dynamic("Couldn't load movies")),
+            message = null,
+            onMessageShown = {},
+            onMenuClick = {},
+            onAboutClick = {},
+            onIntent = {},
+        )
     }
 }

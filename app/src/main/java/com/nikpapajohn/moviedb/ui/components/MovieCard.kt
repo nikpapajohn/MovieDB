@@ -17,10 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.PosterSize
+import com.nikpapajohn.moviedb.domain.model.Movie
 import com.nikpapajohn.moviedb.domain.model.MovieListItem
+import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 
 const val MOVIE_CARD_TAG = "movie_card"
 
@@ -80,5 +83,37 @@ fun MovieCard(
             }
             FavoriteBookmark(isFavorite = item.isFavorite, onToggle = onToggleFavorite)
         }
+    }
+}
+
+private val previewMovie = Movie(
+    id = 1,
+    title = "The Shawshank Redemption",
+    posterPath = null,
+    rating = 8.7,
+    genreNames = listOf("Drama", "Crime"),
+)
+
+@Preview(name = "Favorite", showBackground = true)
+@Composable
+private fun MovieCardFavoritePreview() {
+    MovieDbTheme {
+        MovieCard(
+            item = MovieListItem(movie = previewMovie, isFavorite = true),
+            onClick = {},
+            onToggleFavorite = {},
+        )
+    }
+}
+
+@Preview(name = "Not favorite", showBackground = true)
+@Composable
+private fun MovieCardNotFavoritePreview() {
+    MovieDbTheme {
+        MovieCard(
+            item = MovieListItem(movie = previewMovie, isFavorite = false),
+            onClick = {},
+            onToggleFavorite = {},
+        )
     }
 }

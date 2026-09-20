@@ -135,6 +135,6 @@ class PopularViewModel @Inject constructor(
     }
 
     private companion object {
-        const val SEARCH_DEBOUNCE_MS = 350L
+        const val SEARCH_DEBOUNCE_MS = 500L
     }
 }

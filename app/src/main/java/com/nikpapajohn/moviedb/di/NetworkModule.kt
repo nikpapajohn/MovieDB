@@ -7,8 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import com.nikpapajohn.moviedb.BuildConfig
 import com.nikpapajohn.moviedb.data.remote.AuthInterceptor
+import com.nikpapajohn.moviedb.data.remote.LanguageInterceptor
 import com.nikpapajohn.moviedb.data.remote.TmdbApi
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
@@ -31,14 +31,6 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    @TmdbLanguage
-    fun provideLanguage(): String {
-        val locale = Locale.getDefault()
-        return if (locale.language == "el") "el-GR" else "en-US"
-    }
-
-    @Provides
-    @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC else HttpLoggingInterceptor.Level.NONE
@@ -47,6 +39,8 @@ object NetworkModule {
         }
         return OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(BuildConfig.TMDB_READ_ACCESS_TOKEN))
+            // Added before the logger, so what gets logged is the request TMDB actually sees.
+            .addInterceptor(LanguageInterceptor())
             .addInterceptor(logging)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)

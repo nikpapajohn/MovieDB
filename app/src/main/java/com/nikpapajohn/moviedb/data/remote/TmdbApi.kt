@@ -12,24 +12,19 @@ interface TmdbApi {
     @GET("movie/popular")
     suspend fun popularMovies(
         @Query("page") page: Int,
-        @Query("language") language: String,
     ): MoviePageDto
 
     @GET("movie/{movie_id}")
     suspend fun movieDetails(
         @Path("movie_id") movieId: Int,
-        @Query("language") language: String,
     ): MovieDetailsDto
 
     @GET("genre/movie/list")
-    suspend fun movieGenres(
-        @Query("language") language: String,
-    ): GenreListDto
+    suspend fun movieGenres(): GenreListDto
 
     @GET("search/movie")
     suspend fun searchMovies(
         @Query("query") query: String,
         @Query("page") page: Int,
-        @Query("language") language: String,
     ): MoviePageDto
 }

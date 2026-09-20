@@ -12,7 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.nikpapajohn.moviedb.R
+import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 
 /**
  * Both the favorite indicator and the way to change it, straight from the mockup:
@@ -38,5 +40,21 @@ fun FavoriteBookmark(
             tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
             modifier = Modifier.scale(scale),
         )
+    }
+}
+
+@Preview(name = "Favorited", showBackground = true)
+@Composable
+private fun FavoriteBookmarkFavoritedPreview() {
+    MovieDbTheme {
+        FavoriteBookmark(isFavorite = true, onToggle = {})
+    }
+}
+
+@Preview(name = "Not favorited", showBackground = true)
+@Composable
+private fun FavoriteBookmarkNotFavoritedPreview() {
+    MovieDbTheme {
+        FavoriteBookmark(isFavorite = false, onToggle = {})
     }
 }

@@ -90,12 +90,17 @@ fun MovieDbApp() {
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
                 if (selectedTab != null) {
+                    // Without a visible indicator pill, the default ripple reads as a dark
+                    // flash on the light bar. Tint it with the brand colour instead of
+                    // dropping the touch feedback altogether.
                     CompositionLocalProvider(
                         LocalRippleConfiguration provides RippleConfiguration(
                             color = MaterialTheme.colorScheme.primary,
                         ),
                     ) {
                         NavigationBar(
+                            // Material tints this with surfaceContainer, which reads lavender
+                            // over our teal palette. The mockup's bar is plain surface.
                             containerColor = MaterialTheme.colorScheme.surface,
                         ) {
                             BottomTab.entries.forEach { tab ->
@@ -121,6 +126,7 @@ fun MovieDbApp() {
                                         selectedTextColor = MaterialTheme.colorScheme.primary,
                                         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                         unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        // The mockup has no pill behind the selected icon.
                                         indicatorColor = Color.Transparent,
                                     ),
                                 )

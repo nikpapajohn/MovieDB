@@ -15,10 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nikpapajohn.moviedb.R
 import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.ui.asString
+import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 
 @Composable
 fun LoadingState(modifier: Modifier = Modifier) {
@@ -68,6 +70,33 @@ fun EmptyState(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 200, heightDp = 200)
+@Composable
+private fun LoadingStatePreview() {
+    MovieDbTheme {
+        LoadingState()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ErrorStatePreview() {
+    MovieDbTheme {
+        ErrorState(message = UiText.Dynamic("Something went wrong"), onRetry = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EmptyStatePreview() {
+    MovieDbTheme {
+        EmptyState(
+            title = "No favorites yet",
+            subtitle = "Movies you favorite will show up here",
         )
     }
 }
