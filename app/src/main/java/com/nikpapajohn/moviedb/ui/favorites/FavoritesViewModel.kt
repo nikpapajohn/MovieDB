@@ -46,12 +46,20 @@ class FavoritesViewModel @Inject constructor(
         when (intent) {
             is Intent.MovieClicked -> emit(Effect.NavigateToDetails(intent.movieId))
 
-            // Every row here is a favorite, so a successful toggle is always a removal.
-            // A failed one must say so rather than crash the app.
+            // The message follows what the toggle actually did rather than assuming a
+            // removal: every row here starts out a favorite, but that is a property of the
+            // list at one moment, not a guarantee about the write that just happened.
             is Intent.FavoriteToggled -> viewModelScope.launch {
                 safeCall { toggleFavorite(intent.movie) }
-                    .onSuccess {
-                        emit(Effect.ShowMessage(UiText.res(R.string.message_removed_from_favorites)))
+                    .onSuccess { isFavorite ->
+                        emit(
+                            Effect.ShowMessage(
+                                UiText.res(
+                                    if (isFavorite) R.string.message_added_to_favorites
+                                    else R.string.message_removed_from_favorites,
+                                ),
+                            ),
+                        )
                     }
                     .onFailure { emit(Effect.ShowMessage(it.toAppError().toUiText())) }
             }

@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 
 @Singleton
@@ -24,6 +26,8 @@ class FavoritesRepositoryImpl @Inject constructor(
     private val movieRepository: MovieRepository,
     private val dispatchers: DispatcherProvider,
 ) : FavoritesRepository {
+
+    private val refreshLimit = Semaphore(MAX_PARALLEL_REFRESH)
 
     override fun favoriteIds(): Flow<Set<Int>> =
         dataStore.data.map { data -> data.movies.map { it.id }.toSet() }.distinctUntilChanged()
@@ -65,15 +69,25 @@ class FavoritesRepositoryImpl @Inject constructor(
 
         // Parallel, not sequential: a dozen favorites should not mean a dozen round trips
         // back to back. A movie whose call fails just keeps its old cached snapshot.
+        // Capped, though: favorites are unbounded, and a few hundred of them would mean a
+        // few hundred simultaneous requests — past OkHttp's own dispatcher limit and well
+        // into TMDB rate limiting.
         val refreshed = current.map { favorite ->
             async {
-                movieRepository.movieDetails(favorite.id)
-                    .map { details -> details.toMovie().toFavorite(favorite.addedAtEpochMillis) }
-                    .getOrDefault(favorite)
+                refreshLimit.withPermit {
+                    movieRepository.movieDetails(favorite.id)
+                        .map { details -> details.toMovie().toFavorite(favorite.addedAtEpochMillis) }
+                        .getOrDefault(favorite)
+                }
             }
         }.awaitAll()
 
         dataStore.updateData { it.copy(movies = refreshed) }
         Unit
+    }
+
+    private companion object {
+        /** Enough to keep refresh quick, low enough to stay well inside TMDB's rate limit. */
+        const val MAX_PARALLEL_REFRESH = 6
     }
 }

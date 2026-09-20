@@ -1,10 +1,12 @@
 package com.nikpapajohn.moviedb.ui.details
 
+import androidx.compose.runtime.Immutable
 import com.nikpapajohn.moviedb.core.UiText
 import com.nikpapajohn.moviedb.domain.model.MovieDetails
 
 object DetailsContract {
 
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val details: MovieDetails? = null,

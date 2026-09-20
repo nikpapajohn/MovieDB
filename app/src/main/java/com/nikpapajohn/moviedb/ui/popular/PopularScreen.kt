@@ -17,7 +17,8 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -46,8 +47,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -76,6 +79,8 @@ import com.nikpapajohn.moviedb.ui.popular.PopularContract.Effect
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.Intent
 import com.nikpapajohn.moviedb.ui.popular.PopularContract.State
 import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 
 @Composable
 fun PopularRoute(
@@ -324,24 +329,39 @@ private fun WelcomeHeader() {
     }
 }
 
+/** How far from the end the next page is asked for, in rows. */
+private const val PREFETCH_DISTANCE = 2
+
 @Composable
 private fun MovieList(
     state: State,
     onIntent: (Intent) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+    // Pagination is driven by the scroll position rather than by an effect living inside
+    // the last row. Read inside snapshotFlow, so it re-evaluates when either the scroll or
+    // the state changes; rememberUpdatedState keeps the collector from closing over the
+    // first composition's state forever.
+    val currentState by rememberUpdatedState(state)
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            currentState.canLoadMore &&
+                lastVisible >= currentState.items.lastIndex - PREFETCH_DISTANCE
+        }
+            .distinctUntilChanged()
+            .filter { it }
+            .collect { onIntent(Intent.LoadNextPage) }
+    }
+
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         // Bottom room for the FAB, so the last card is never trapped under it.
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 88.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        itemsIndexed(items = state.items, key = { _, item -> item.movie.id }) { index, item ->
-            // Reaching the last row asks for the next page: this is the whole of our pagination.
-            if (index == state.items.lastIndex && state.canLoadMore) {
-                LaunchedEffect(state.page, state.items.size) {
-                    onIntent(Intent.LoadNextPage)
-                }
-            }
+        items(items = state.items, key = { item -> item.movie.id }) { item ->
             MovieCard(
                 item = item,
                 onClick = { onIntent(Intent.MovieClicked(item.movie.id)) },

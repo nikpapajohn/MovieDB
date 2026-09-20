@@ -42,6 +42,10 @@ class PopularViewModel @Inject constructor(
 
     private var loadJob: Job? = null
 
+    /** Kept apart from [loadJob] so that starting a first page cancels an append in flight
+     *  without either overwriting the other's handle. */
+    private var appendJob: Job? = null
+
     init {
         viewModelScope.launch {
             observeFavoriteIds().collect { ids -> update(Change.FavoritesUpdated(ids)) }
@@ -83,6 +87,7 @@ class PopularViewModel @Inject constructor(
 
     private fun loadFirstPage(debounce: Boolean) {
         loadJob?.cancel()
+        appendJob?.cancel()
         loadJob = viewModelScope.launch {
             if (debounce) delay(SEARCH_DEBOUNCE_MS)
             update(Change.FirstPageLoading)
@@ -96,10 +101,11 @@ class PopularViewModel @Inject constructor(
         // must get through, so the condition is spelled out here instead.
         val busyOrDone = current.isLoading || current.isLoadingMore || current.endReached
         if (busyOrDone || current.items.isEmpty()) return
-        loadJob = viewModelScope.launch {
-            update(Change.NextPageLoading)
-            load(page = current.page + 1, replace = false)
-        }
+        // isLoadingMore is flipped here, not inside the coroutine: the guard above reads
+        // state, and a second LoadNextPage arriving in the same frame would still see it
+        // false and fire a duplicate request for the same page.
+        update(Change.NextPageLoading)
+        appendJob = viewModelScope.launch { load(page = current.page + 1, replace = false) }
     }
 
     private suspend fun load(page: Int, replace: Boolean) {

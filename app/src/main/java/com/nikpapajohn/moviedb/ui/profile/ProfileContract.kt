@@ -1,9 +1,11 @@
 package com.nikpapajohn.moviedb.ui.profile
 
+import androidx.compose.runtime.Immutable
 import com.nikpapajohn.moviedb.core.UiText
 
 object ProfileContract {
 
+    @Immutable
     data class State(val favoritesCount: Int = 0)
 
     sealed interface Intent {

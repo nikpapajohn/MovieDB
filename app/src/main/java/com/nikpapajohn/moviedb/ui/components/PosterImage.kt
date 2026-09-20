@@ -11,6 +11,10 @@ import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,7 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.SubcomposeAsyncImage
+import coil.compose.AsyncImage
 import com.nikpapajohn.moviedb.core.PosterSize
 import com.nikpapajohn.moviedb.core.posterUrl
 import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
@@ -36,32 +40,29 @@ fun PosterImage(
     cornerRadius: Dp = 8.dp,
 ) {
     val url = posterUrl(posterPath, size)
+    // AsyncImage, not SubcomposeAsyncImage: this draws once per row of the list, and
+    // subcomposition is markedly more expensive while scrolling. The error state is a
+    // plain flag instead of a slot, which keeps the same small tinted icon without it.
+    var isError by remember(url) { mutableStateOf(false) }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(cornerRadius))
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center,
     ) {
-        if (url == null) {
+        if (url == null || isError) {
             Icon(
                 imageVector = Icons.Outlined.Movie,
                 contentDescription = contentDescription,
                 tint = MaterialTheme.colorScheme.outline,
             )
         } else {
-            SubcomposeAsyncImage(
+            AsyncImage(
                 model = url,
                 contentDescription = contentDescription,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
-                loading = {},
-                error = {
-                    Icon(
-                        imageVector = Icons.Outlined.Movie,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outline,
-                    )
-                },
+                onError = { isError = true },
             )
         }
     }
