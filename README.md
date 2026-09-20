@@ -1,5 +1,7 @@
 # MovieDB — Android Technical Assessment
 
+[![Lint](https://github.com/nikpapajohn/MovieDB/actions/workflows/lint.yml/badge.svg)](https://github.com/nikpapajohn/MovieDB/actions/workflows/lint.yml)
+
 A TMDB client in Kotlin and Jetpack Compose, built with **MVI**: a paged list of popular
 movies, a details screen, and favorites stored **encrypted with a key held in the Android
 Keystore**.
@@ -138,6 +140,11 @@ emulator. The one worth reading is
 the DataStore file as bytes and asserts the movie title is not in it — one assertion that
 proves the encryption is actually applied.
 
+**CI** (`.github/workflows/lint.yml`) runs `ktlintCheck`, `testDebugUnitTest` and Android
+Lint on every pull request and on push to `main`. `connectedDebugAndroidTest` stays out of
+CI on purpose — it needs an emulator or device, which a plain GitHub-hosted runner doesn't
+provide — so it's still a local/manual step.
+
 ## Trade-offs
 
 - **One module, layered packages.** Multi-module would look impressive but costs build
@@ -155,6 +162,7 @@ proves the encryption is actually applied.
   becomes the right tool and the pagination above moves behind it.
 - Saving the loaded page and scroll position in `SavedStateHandle` so process death restores
   more than the first page.
-- GitHub Actions running `assembleDebug` and the unit tests, plus ktlint/detekt.
+- A `connectedDebugAndroidTest` job in CI (self-hosted runner or an emulator-capable action),
+  now that ktlint, unit tests and Android Lint already gate every PR.
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
