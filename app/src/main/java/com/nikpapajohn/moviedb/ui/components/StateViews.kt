@@ -30,46 +30,38 @@ fun LoadingState(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ErrorState(
-    message: UiText,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun ErrorState(message: UiText, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
             text = message.asString(),
             style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
         Button(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
     }
 }
 
 @Composable
-fun EmptyState(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier,
-) {
+fun EmptyState(title: String, subtitle: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(text = title, style = MaterialTheme.typography.titleMedium)
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -96,7 +88,7 @@ private fun EmptyStatePreview() {
     MovieDbTheme {
         EmptyState(
             title = "No favorites yet",
-            subtitle = "Movies you favorite will show up here",
+            subtitle = "Movies you favorite will show up here"
         )
     }
 }

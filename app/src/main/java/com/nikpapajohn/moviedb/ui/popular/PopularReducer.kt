@@ -14,7 +14,7 @@ object PopularReducer {
             state.copy(
                 isSearchVisible = visible,
                 // Closing the search box clears the query, which triggers a reload of popular.
-                query = if (visible) state.query else "",
+                query = if (visible) state.query else ""
             )
         }
 
@@ -22,7 +22,7 @@ object PopularReducer {
             isLoading = true,
             isLoadingMore = false,
             error = null,
-            appendError = null,
+            appendError = null
         )
 
         Change.NextPageLoading -> state.copy(isLoadingMore = true, appendError = null)
@@ -45,7 +45,7 @@ object PopularReducer {
                 isLoading = false,
                 isLoadingMore = false,
                 error = null,
-                appendError = null,
+                appendError = null
             )
         }
 
@@ -59,7 +59,7 @@ object PopularReducer {
             favoriteIds = change.ids,
             items = state.items.map { item ->
                 item.copy(isFavorite = change.ids.contains(item.movie.id))
-            },
+            }
         )
     }
 }

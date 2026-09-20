@@ -30,7 +30,7 @@ class PopularViewModel @Inject constructor(
     private val getPopularMovies: GetPopularMoviesUseCase,
     private val searchMovies: SearchMoviesUseCase,
     private val observeFavoriteIds: ObserveFavoriteIdsUseCase,
-    private val toggleFavorite: ToggleFavoriteUseCase,
+    private val toggleFavorite: ToggleFavoriteUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -121,16 +121,16 @@ class PopularViewModel @Inject constructor(
                         movies = moviePage.movies,
                         page = moviePage.page,
                         endReached = !moviePage.hasMorePages,
-                        replace = replace,
-                    ),
+                        replace = replace
+                    )
                 )
             }
             .onFailure { throwable ->
                 update(
                     Change.LoadFailed(
                         error = throwable.toAppError().toUiText(),
-                        isAppend = !replace,
-                    ),
+                        isAppend = !replace
+                    )
                 )
             }
     }

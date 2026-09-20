@@ -28,7 +28,10 @@ class MovieRepositoryImplTest {
     private lateinit var server: MockWebServer
     private lateinit var api: TmdbApi
 
-    private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
 
     @Before
     fun setUp() {
@@ -54,7 +57,7 @@ class MovieRepositoryImplTest {
 
     private fun repository() = MovieRepositoryImpl(
         api = api,
-        genreCache = GenreCache(api),
+        genreCache = GenreCache(api)
     )
 
     @Test
@@ -73,8 +76,8 @@ class MovieRepositoryImplTest {
                   "runtime": 142,
                   "genres": [{"id": 18, "name": "Drama"}]
                 }
-                """.trimIndent(),
-            ),
+                """.trimIndent()
+            )
         )
 
         val details = repository().movieDetails(278).getOrThrow()
@@ -99,12 +102,14 @@ class MovieRepositoryImplTest {
                     {"id": 2, "title": "Second", "poster_path": "/p.jpg", "vote_average": 6.4}
                   ]
                 }
-                """.trimIndent(),
-            ),
+                """.trimIndent()
+            )
         )
         // the genre lookup the mapper triggers for the first movie
         server.enqueue(
-            MockResponse().setResponseCode(200).setBody("""{"genres":[{"id":18,"name":"Drama"}]}"""),
+            MockResponse().setResponseCode(
+                200
+            ).setBody("""{"genres":[{"id":18,"name":"Drama"}]}""")
         )
 
         val page = repository().popularMovies(2).getOrThrow()
@@ -120,8 +125,8 @@ class MovieRepositoryImplTest {
     fun `the last page reports that there is nothing more to load`() = runTest {
         server.enqueue(
             MockResponse().setResponseCode(200).setBody(
-                """{"page": 3, "total_pages": 3, "total_results": 50, "results": []}""",
-            ),
+                """{"page": 3, "total_pages": 3, "total_results": 50, "results": []}"""
+            )
         )
 
         val page = repository().popularMovies(3).getOrThrow()
@@ -132,7 +137,7 @@ class MovieRepositoryImplTest {
     @Test
     fun `a 401 surfaces as Unauthorized so the UI can point at the token`() = runTest {
         server.enqueue(
-            MockResponse().setResponseCode(401).setBody("""{"status_message":"Invalid API key"}"""),
+            MockResponse().setResponseCode(401).setBody("""{"status_message":"Invalid API key"}""")
         )
 
         val result = repository().movieDetails(278)

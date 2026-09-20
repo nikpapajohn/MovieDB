@@ -29,7 +29,7 @@ class DetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getMovieDetails: GetMovieDetailsUseCase,
     private val observeIsFavorite: ObserveIsFavoriteUseCase,
-    private val toggleFavorite: ToggleFavoriteUseCase,
+    private val toggleFavorite: ToggleFavoriteUseCase
 ) : ViewModel() {
 
     private val movieId: Int = checkNotNull(savedStateHandle.get<Int>(MOVIE_ID_KEY)) {
@@ -69,10 +69,13 @@ class DetailsViewModel @Inject constructor(
                             emit(
                                 Effect.ShowMessage(
                                     UiText.res(
-                                        if (isFavorite) R.string.message_added_to_favorites
-                                        else R.string.message_removed_from_favorites,
-                                    ),
-                                ),
+                                        if (isFavorite) {
+                                            R.string.message_added_to_favorites
+                                        } else {
+                                            R.string.message_removed_from_favorites
+                                        }
+                                    )
+                                )
                             )
                         }
                         // Announcing success after a failed write would be a lie, and the

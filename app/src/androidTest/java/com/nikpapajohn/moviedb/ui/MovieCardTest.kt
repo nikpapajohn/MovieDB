@@ -35,9 +35,9 @@ class MovieCardTest {
             title = "The Shawshank Redemption",
             posterPath = null,
             rating = 8.7,
-            genreNames = listOf("Drama"),
+            genreNames = listOf("Drama")
         ),
-        isFavorite = false,
+        isFavorite = false
     )
 
     private fun ratingDescription(rating: Double): String =
@@ -89,7 +89,7 @@ class MovieCardTest {
                 MovieCard(
                     item = item.copy(isFavorite = true),
                     onClick = {},
-                    onToggleFavorite = {},
+                    onToggleFavorite = {}
                 )
             }
         }

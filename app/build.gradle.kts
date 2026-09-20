@@ -28,7 +28,7 @@ val tmdbToken: String = run {
 if (tmdbToken.isBlank()) {
     logger.warn(
         "TMDB_READ_ACCESS_TOKEN is not set: the app will build, but every TMDB request " +
-            "will come back 401. Add it to local.properties or set it in the environment.",
+            "will come back 401. Add it to local.properties or set it in the environment."
     )
 }
 
@@ -57,7 +57,10 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 

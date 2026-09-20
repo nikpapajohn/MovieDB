@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     observeFavoriteIds: ObserveFavoriteIdsUseCase,
-    private val clearFavorites: ClearFavoritesUseCase,
+    private val clearFavorites: ClearFavoritesUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(State())
@@ -47,7 +47,7 @@ class ProfileViewModel @Inject constructor(
             Intent.ClearFavoritesClicked -> viewModelScope.launch {
                 val message = safeCall { clearFavorites() }.fold(
                     onSuccess = { UiText.res(R.string.message_favorites_cleared) },
-                    onFailure = { it.toAppError().toUiText() },
+                    onFailure = { it.toAppError().toUiText() }
                 )
                 _effects.send(Effect.ShowMessage(message))
             }

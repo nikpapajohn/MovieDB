@@ -40,7 +40,8 @@ class PopularViewModelTest {
 
     private val favoriteIds = MutableStateFlow<Set<Int>>(emptySet())
 
-    private fun movie(id: Int) = Movie(id = id, title = "Movie $id", posterPath = null, rating = 8.0)
+    private fun movie(id: Int) =
+        Movie(id = id, title = "Movie $id", posterPath = null, rating = 8.0)
 
     private fun page(number: Int, ids: List<Int>, total: Int = 3) =
         MoviePage(page = number, movies = ids.map(::movie), totalPages = total)
@@ -49,7 +50,7 @@ class PopularViewModelTest {
         getPopularMovies = getPopularMovies,
         searchMovies = searchMovies,
         observeFavoriteIds = observeFavoriteIds,
-        toggleFavorite = toggleFavorite,
+        toggleFavorite = toggleFavorite
     )
 
     @Test

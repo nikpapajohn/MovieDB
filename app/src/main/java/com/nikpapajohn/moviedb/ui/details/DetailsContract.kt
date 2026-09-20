@@ -11,7 +11,7 @@ object DetailsContract {
         val isLoading: Boolean = true,
         val details: MovieDetails? = null,
         val isFavorite: Boolean = false,
-        val error: UiText? = null,
+        val error: UiText? = null
     )
 
     sealed interface Intent {
@@ -26,6 +26,7 @@ object DetailsContract {
     sealed interface Effect {
         data object NavigateBack : Effect
         data class ShowMessage(val text: UiText) : Effect
+
         /** Handing off to another app is a one-off action, never screen state. */
         data class ShareText(val text: String) : Effect
         data class OpenUrl(val url: String) : Effect

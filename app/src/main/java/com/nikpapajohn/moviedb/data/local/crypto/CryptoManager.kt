@@ -9,4 +9,5 @@ interface CryptoManager {
 }
 
 /** The stored blob cannot be read with the current key: wrong format, tampering, or a lost key. */
-class CryptoUnavailableException(message: String, cause: Throwable? = null) : Exception(message, cause)
+class CryptoUnavailableException(message: String, cause: Throwable? = null) :
+    Exception(message, cause)

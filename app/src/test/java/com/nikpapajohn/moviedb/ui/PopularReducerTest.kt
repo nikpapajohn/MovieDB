@@ -37,7 +37,12 @@ class PopularReducerTest {
 
         val result = reduce(
             state,
-            Change.PageLoaded(movies = listOf(movie(2)), page = 1, endReached = false, replace = true),
+            Change.PageLoaded(
+                movies = listOf(movie(2)),
+                page = 1,
+                endReached = false,
+                replace = true
+            )
         )
 
         assertEquals(listOf(2), result.items.map { it.movie.id })
@@ -51,7 +56,12 @@ class PopularReducerTest {
 
         val result = reduce(
             state,
-            Change.PageLoaded(movies = listOf(movie(2)), page = 2, endReached = false, replace = false),
+            Change.PageLoaded(
+                movies = listOf(movie(2)),
+                page = 2,
+                endReached = false,
+                replace = false
+            )
         )
 
         assertEquals(listOf(1, 2), result.items.map { it.movie.id })
@@ -68,8 +78,8 @@ class PopularReducerTest {
                 movies = listOf(movie(1), movie(2)),
                 page = 2,
                 endReached = false,
-                replace = false,
-            ),
+                replace = false
+            )
         )
 
         assertEquals(listOf(1, 2), result.items.map { it.movie.id })
@@ -85,8 +95,8 @@ class PopularReducerTest {
                 movies = listOf(movie(1), movie(2)),
                 page = 1,
                 endReached = true,
-                replace = true,
-            ),
+                replace = true
+            )
         )
 
         assertFalse(result.items.first { it.movie.id == 1 }.isFavorite)
@@ -100,11 +110,11 @@ class PopularReducerTest {
 
         val firstPageFailure = reduce(
             loaded,
-            Change.LoadFailed(UiText.Dynamic("network"), isAppend = false),
+            Change.LoadFailed(UiText.Dynamic("network"), isAppend = false)
         )
         val appendFailure = reduce(
             loaded,
-            Change.LoadFailed(UiText.Dynamic("network"), isAppend = true),
+            Change.LoadFailed(UiText.Dynamic("network"), isAppend = true)
         )
 
         assertTrue(firstPageFailure.items.isEmpty())
@@ -117,7 +127,8 @@ class PopularReducerTest {
 
     @Test
     fun `favorites updates re-mark the visible list`() {
-        val state = State(items = listOf(MovieListItem(movie(1), false), MovieListItem(movie(2), true)))
+        val state =
+            State(items = listOf(MovieListItem(movie(1), false), MovieListItem(movie(2), true)))
 
         val result = reduce(state, Change.FavoritesUpdated(setOf(1)))
 

@@ -21,7 +21,13 @@ suspend fun <T> safeApiCall(block: suspend () -> T): Result<T> = try {
 } catch (e: IOException) {
     Result.failure(AppErrorException(AppError.Network, e))
 } catch (e: HttpException) {
-    val error = if (e.code() == 401 || e.code() == 403) AppError.Unauthorized else AppError.Http(e.code())
+    val error = if (e.code() == 401 ||
+        e.code() == 403
+    ) {
+        AppError.Unauthorized
+    } else {
+        AppError.Http(e.code())
+    }
     Result.failure(AppErrorException(error, e))
 } catch (e: SerializationException) {
     Result.failure(AppErrorException(AppError.Unknown(e)))
@@ -48,6 +54,12 @@ suspend fun <T> safeCall(block: suspend () -> T): Result<T> = try {
 fun Throwable.toAppError(): AppError = when (this) {
     is AppErrorException -> error
     is IOException -> AppError.Network
-    is HttpException -> if (code() == 401 || code() == 403) AppError.Unauthorized else AppError.Http(code())
+    is HttpException -> if (code() == 401 ||
+        code() == 403
+    ) {
+        AppError.Unauthorized
+    } else {
+        AppError.Http(code())
+    }
     else -> AppError.Unknown(this)
 }

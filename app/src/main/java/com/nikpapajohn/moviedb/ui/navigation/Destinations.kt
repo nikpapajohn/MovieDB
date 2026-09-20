@@ -36,27 +36,27 @@ enum class BottomTab(
     val route: KClass<out Destination>,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    @StringRes val labelRes: Int,
+    @StringRes val labelRes: Int
 ) {
     HOME(
         destination = Destination.Home,
         route = Destination.Home::class,
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
-        labelRes = R.string.nav_home,
+        labelRes = R.string.nav_home
     ),
     FAVORITES(
         destination = Destination.Favorites,
         route = Destination.Favorites::class,
         selectedIcon = Icons.Filled.Bookmark,
         unselectedIcon = Icons.Outlined.BookmarkBorder,
-        labelRes = R.string.nav_favorites,
+        labelRes = R.string.nav_favorites
     ),
     PROFILE(
         destination = Destination.Profile,
         route = Destination.Profile::class,
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person,
-        labelRes = R.string.nav_profile,
-    ),
+        labelRes = R.string.nav_profile
+    )
 }

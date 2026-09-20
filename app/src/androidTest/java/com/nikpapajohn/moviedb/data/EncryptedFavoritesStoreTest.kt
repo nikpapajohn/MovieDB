@@ -45,7 +45,7 @@ class EncryptedFavoritesStoreTest {
         title = "The Shawshank Redemption",
         posterPath = "/poster.jpg",
         rating = 8.7,
-        genreNames = listOf("Drama"),
+        genreNames = listOf("Drama")
     )
 
     @Before
@@ -67,7 +67,7 @@ class EncryptedFavoritesStoreTest {
             serializer = EncryptedFavoritesSerializer(KeystoreCryptoManager()),
             corruptionHandler = ReplaceFileCorruptionHandler { FavoritesData() },
             scope = scope,
-            produceFile = { file },
+            produceFile = { file }
         )
     }
 

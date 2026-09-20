@@ -4,15 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,10 +45,7 @@ import com.nikpapajohn.moviedb.ui.profile.ProfileContract.State
 import com.nikpapajohn.moviedb.ui.theme.MovieDbTheme
 
 @Composable
-fun ProfileRoute(
-    onMenuClick: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel(),
-) {
+fun ProfileRoute(onMenuClick: () -> Unit, viewModel: ProfileViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = rememberSnackbarController()
 
@@ -63,7 +60,7 @@ fun ProfileRoute(
         message = snackbar.current,
         onMessageShown = snackbar::consume,
         onMenuClick = onMenuClick,
-        onIntent = viewModel::onIntent,
+        onIntent = viewModel::onIntent
     )
 }
 
@@ -74,7 +71,7 @@ fun ProfileScreen(
     message: SnackbarRequest?,
     onMessageShown: () -> Unit,
     onMenuClick: () -> Unit,
-    onIntent: (Intent) -> Unit,
+    onIntent: (Intent) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     SnackbarMessage(message = message, hostState = snackbarHostState, onShown = onMessageShown)
@@ -90,47 +87,47 @@ fun ProfileScreen(
                     IconButton(onClick = onMenuClick) {
                         Icon(
                             Icons.Filled.Menu,
-                            contentDescription = stringResource(R.string.action_menu),
+                            contentDescription = stringResource(R.string.action_menu)
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-        },
+        }
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.profile_storage_title),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium
                     )
                     Text(
                         text = pluralStringResource(
                             R.plurals.profile_favorites_count,
                             state.favoritesCount,
-                            state.favoritesCount,
+                            state.favoritesCount
                         ),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -138,11 +135,10 @@ fun ProfileScreen(
             OutlinedButton(
                 onClick = { onIntent(Intent.ClearFavoritesClicked) },
                 enabled = state.favoritesCount > 0,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.profile_clear_favorites))
             }
-
         }
     }
 }
@@ -156,7 +152,7 @@ private fun ProfileScreenPreview() {
             message = null,
             onMessageShown = {},
             onMenuClick = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
@@ -170,8 +166,7 @@ private fun ProfileScreenEmptyPreview() {
             message = null,
             onMessageShown = {},
             onMenuClick = {},
-            onIntent = {},
+            onIntent = {}
         )
     }
 }
-

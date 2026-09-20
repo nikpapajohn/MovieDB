@@ -37,10 +37,10 @@ const val FAVORITE_BUTTON_TAG = "details_favorite_button"
 fun FavoriteButton(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val label = stringResource(
-        if (isFavorite) R.string.details_added_favorite else R.string.details_add_favorite,
+        if (isFavorite) R.string.details_added_favorite else R.string.details_add_favorite
     )
     // No fixed height: a long label (Greek, or a large system font scale) has to wrap
     // instead of being clipped.
@@ -59,8 +59,8 @@ fun FavoriteButton(
             contentPadding = contentPadding,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Icon(Icons.Filled.Favorite, contentDescription = null, modifier = iconSize)
             Text(
@@ -70,7 +70,7 @@ fun FavoriteButton(
                 maxLines = 2,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 6.dp),
+                    .padding(horizontal = 6.dp)
             )
             Icon(Icons.Filled.Check, contentDescription = null, modifier = iconSize)
         }
@@ -82,8 +82,8 @@ fun FavoriteButton(
             contentPadding = contentPadding,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary,
-            ),
+                contentColor = MaterialTheme.colorScheme.primary
+            )
         ) {
             Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = iconSize)
             Text(
@@ -93,7 +93,7 @@ fun FavoriteButton(
                 maxLines = 2,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 6.dp),
+                    .padding(start = 6.dp)
             )
         }
     }

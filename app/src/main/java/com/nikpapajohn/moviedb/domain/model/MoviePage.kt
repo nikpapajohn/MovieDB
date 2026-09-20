@@ -4,11 +4,7 @@ package com.nikpapajohn.moviedb.domain.model
  * One TMDB page. Pagination is explicit so the whole screen state stays reducible;
  * see the README for why Paging 3 is not used here.
  */
-data class MoviePage(
-    val page: Int,
-    val movies: List<Movie>,
-    val totalPages: Int,
-) {
+data class MoviePage(val page: Int, val movies: List<Movie>, val totalPages: Int) {
     /** TMDB refuses page numbers above 500, regardless of totalPages. */
     val hasMorePages: Boolean
         get() = page < totalPages && page < MAX_PAGE

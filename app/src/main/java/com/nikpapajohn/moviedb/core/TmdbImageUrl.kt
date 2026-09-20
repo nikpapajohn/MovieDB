@@ -8,7 +8,7 @@ import com.nikpapajohn.moviedb.BuildConfig
  */
 enum class PosterSize(val path: String) {
     LIST("w185"),
-    DETAILS("w500"),
+    DETAILS("w500")
 }
 
 fun posterUrl(posterPath: String?, size: PosterSize): String? =

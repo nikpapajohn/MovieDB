@@ -48,14 +48,14 @@ class DetailsViewModelTest {
         voteCount = 26_000,
         releaseDate = "1994-09-23",
         runtimeMinutes = 142,
-        genres = emptyList(),
+        genres = emptyList()
     )
 
     private fun viewModel() = DetailsViewModel(
         savedStateHandle = SavedStateHandle(mapOf("movieId" to 278)),
         getMovieDetails = getMovieDetails,
         observeIsFavorite = observeIsFavorite,
-        toggleFavorite = toggleFavorite,
+        toggleFavorite = toggleFavorite
     )
 
     @Test
@@ -87,7 +87,7 @@ class DetailsViewModelTest {
     fun `retry after an error reaches a loaded state`() = runTest {
         coEvery { getMovieDetails(278) } returnsMany listOf(
             Result.failure(AppErrorException(AppError.Network)),
-            Result.success(details),
+            Result.success(details)
         )
         every { observeIsFavorite(278) } returns flowOf(false)
 

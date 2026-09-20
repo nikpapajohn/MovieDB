@@ -47,7 +47,7 @@ class UseCasesTest {
         voteCount = 100,
         releaseDate = "2016-11-10",
         runtimeMinutes = 116,
-        genres = emptyList(),
+        genres = emptyList()
     )
 
     @Test

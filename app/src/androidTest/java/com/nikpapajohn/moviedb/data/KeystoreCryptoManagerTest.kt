@@ -20,7 +20,8 @@ class KeystoreCryptoManagerTest {
 
     @Test
     fun encrypt_then_decrypt_returns_the_original_bytes() {
-        val plain = """{"movies":[{"id":278,"title":"The Shawshank Redemption"}]}""".encodeToByteArray()
+        val plain =
+            """{"movies":[{"id":278,"title":"The Shawshank Redemption"}]}""".encodeToByteArray()
 
         val restored = crypto.decrypt(crypto.encrypt(plain))
 

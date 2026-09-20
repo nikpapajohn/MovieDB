@@ -52,7 +52,7 @@ class MovieMappersTest {
             voteCount = 26_000,
             releaseDate = "1994-09-23",
             runtime = 0,
-            genres = listOf(GenreDto(18, "Drama")),
+            genres = listOf(GenreDto(18, "Drama"))
         )
 
         val details = dto.toDomain()

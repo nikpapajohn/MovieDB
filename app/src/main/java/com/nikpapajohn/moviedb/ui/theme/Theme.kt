@@ -25,7 +25,7 @@ private val LightColors = lightColorScheme(
     errorContainer = ErrorContainerLight,
     onErrorContainer = OnErrorContainerLight,
     tertiary = Teal700,
-    onTertiary = OnPrimaryLight,
+    onTertiary = OnPrimaryLight
 )
 
 private val DarkColors = darkColorScheme(
@@ -47,7 +47,7 @@ private val DarkColors = darkColorScheme(
     errorContainer = ErrorContainerDark,
     onErrorContainer = OnErrorContainerDark,
     tertiary = Teal200Dark,
-    onTertiary = OnPrimaryDark,
+    onTertiary = OnPrimaryDark
 )
 
 /**
@@ -55,13 +55,10 @@ private val DarkColors = darkColorScheme(
  * and Material You would replace it with the device wallpaper colors on Android 12+.
  */
 @Composable
-fun MovieDbTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
+fun MovieDbTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
         typography = MovieDbTypography,
-        content = content,
+        content = content
     )
 }
