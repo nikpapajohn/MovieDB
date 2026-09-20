@@ -32,8 +32,8 @@ android {
         applicationId = "com.nikpapajohn.moviedb"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.0.5"
+        versionCode = 6
+        versionName = "1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -76,6 +76,15 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+}
+
+// Compose compiler diagnostics: after a build, build/compose_reports has a per-module
+// composables.txt/classes.txt naming "unstable" composables (params it can't skip
+// recomposition for) and build/compose_metrics has raw recomposition-group counts. Neither
+// runs the app — it is a static compile-time report, read after ./gradlew assembleDebug.
+composeCompiler {
+    metricsDestination = layout.buildDirectory.dir("compose_metrics")
+    reportsDestination = layout.buildDirectory.dir("compose_reports")
 }
 
 dependencies {
